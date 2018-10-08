@@ -1,0 +1,12 @@
+language: java
+
+jdk:
+#- openjdk8 : not yet setup on travis side.
+- oraclejdk8
+
+before_install:
+- chmod +x gradlew
+
+install:
+- ./gradlew install --stacktrace
+- ./gradlew assemble --stacktrace
