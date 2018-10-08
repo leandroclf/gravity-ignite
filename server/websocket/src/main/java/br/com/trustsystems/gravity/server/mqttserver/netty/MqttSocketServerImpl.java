@@ -3,6 +3,7 @@ package br.com.trustsystems.gravity.server.mqttserver.netty;
 import br.com.trustsystems.gravity.core.modules.Server;
 import br.com.trustsystems.gravity.core.worker.state.messages.ConnectAcknowledgeMessage;
 import br.com.trustsystems.gravity.core.worker.state.messages.base.IOTMessage;
+import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import br.com.trustsystems.gravity.server.netty.SSLHandler;
 import br.com.trustsystems.gravity.server.netty.ServerImpl;
 import br.com.trustsystems.gravity.server.netty.ServerInitializer;
@@ -34,11 +35,12 @@ public class MqttSocketServerImpl extends ServerImpl<MqttMessage> {
 
     /**
      * @param configuration Object carrying all configurable properties from file.
+     * @throws UnRetriableException
      * @link configure method supplies the configuration object carrying all the
      * properties parsed from the external properties file.
      */
 
-    public void configure(Configuration configuration) {
+    public void configure(Configuration configuration) throws UnRetriableException {
         log.info(" configure : setting up our configurations.");
 
         int tcpPort = configuration.getInt(CONFIGURATION_SERVER_MQTT_WEBSOCKET_PORT, CONFIGURATION_VALUE_DEFAULT_SERVER_MQTT_WEBSOCKET_PORT);

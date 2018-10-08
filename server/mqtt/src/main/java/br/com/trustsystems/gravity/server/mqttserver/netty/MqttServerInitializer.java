@@ -25,7 +25,7 @@ public class MqttServerInitializer extends ServerInitializer<MqttMessage> {
         pipeline.addLast("encoder", new MqttEncoder());
 
         // we finally have the chance to add some business logic.
-        pipeline.addLast(new MqttServerHandler((MqttServerImpl) getServerImpl()));
+        pipeline.addLast( new MqttServerHandler((MqttServerImpl) getServerImpl()));
     }
 
 

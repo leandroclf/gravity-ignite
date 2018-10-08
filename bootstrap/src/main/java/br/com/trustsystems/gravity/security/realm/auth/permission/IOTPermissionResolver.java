@@ -14,6 +14,6 @@ public class IOTPermissionResolver implements PermissionResolver {
      */
     @Override
     public Permission resolvePermission(String permissionString) {
-        return new IOTPermission(permissionString);
+       return new IOTPermission(permissionString);
     }
 }

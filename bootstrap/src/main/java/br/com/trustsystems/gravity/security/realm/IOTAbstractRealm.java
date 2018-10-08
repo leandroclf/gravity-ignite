@@ -10,12 +10,12 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 
-public abstract class IOTAbstractRealm extends AuthorizingRealm {
+public abstract class IOTAbstractRealm extends AuthorizingRealm{
 
     private IOTAccountDatastore iotAccountDatastore;
 
 
-    public IOTAbstractRealm() {
+    public IOTAbstractRealm(){
 
         //IOTAbstractRealm is in memory data grid reloaded
         // - no need for an additional cache mechanism since we're
@@ -49,6 +49,7 @@ public abstract class IOTAbstractRealm extends AuthorizingRealm {
 
         return getIOTAccount(idConstruct.getPartition(), idConstruct.getUsername());
     }
+
 
 
     /**
@@ -89,11 +90,11 @@ public abstract class IOTAbstractRealm extends AuthorizingRealm {
 
     }
 
-    public IOTAccount getIOTAccount(String partition, String username) {
+    public IOTAccount getIOTAccount(String partition, String username){
 
-        IOTAccount account = getIotAccountDatastore().getIOTAccount(partition, username);
+        IOTAccount account= getIotAccountDatastore().getIOTAccount(partition, username);
 
-        if (null != account)
+        if(null != account)
             account.setIotAccountDatastore(getIotAccountDatastore());
 
         return account;
@@ -107,7 +108,7 @@ public abstract class IOTAbstractRealm extends AuthorizingRealm {
         return getIOTAccount(partition, username);
     }
 
-    protected void saveIOTAccount(IOTAccount iotAccount) {
+    protected void saveIOTAccount(IOTAccount iotAccount){
         getIotAccountDatastore().saveIOTAccount(iotAccount);
     }
 
@@ -119,8 +120,8 @@ public abstract class IOTAbstractRealm extends AuthorizingRealm {
         return getIotAccountDatastore().getIOTRole(partition, name) != null;
     }
 
-    public IOTRole addIOTRole(String partition, String rolename) {
-        saveIOTRole(new IOTRole(partition, rolename));
+    public IOTRole addIOTRole(String partition, String rolename ) {
+        saveIOTRole( new IOTRole(partition, rolename));
         return getIotAccountDatastore().getIOTRole(partition, rolename);
 
     }

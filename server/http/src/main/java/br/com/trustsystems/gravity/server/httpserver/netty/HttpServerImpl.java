@@ -2,6 +2,7 @@ package br.com.trustsystems.gravity.server.httpserver.netty;
 
 import br.com.trustsystems.gravity.core.modules.Server;
 import br.com.trustsystems.gravity.core.worker.state.messages.base.IOTMessage;
+import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import br.com.trustsystems.gravity.server.netty.SSLHandler;
 import br.com.trustsystems.gravity.server.netty.ServerImpl;
 import br.com.trustsystems.gravity.server.netty.ServerInitializer;
@@ -30,11 +31,12 @@ public class HttpServerImpl extends ServerImpl<FullHttpMessage> {
 
     /**
      * @param configuration Object carrying all configurable properties from file.
+     * @throws UnRetriableException
      * @link configure method supplies the configuration object carrying all the
      * properties parsed from the external properties file.
      */
 
-    public void configure(Configuration configuration) {
+    public void configure(Configuration configuration) throws UnRetriableException {
         log.info(" configure : setting up our configurations.");
 
         int tcpPort = configuration.getInt(CONFIGURATION_SERVER_HTTP_TCP_PORT, CONFIGURATION_VALUE_DEFAULT_SERVER_HTTP_TCP_PORT);
@@ -46,7 +48,7 @@ public class HttpServerImpl extends ServerImpl<FullHttpMessage> {
         boolean sslEnabled = configuration.getBoolean(CONFIGURATION_SERVER_HTTP_SSL_IS_ENABLED, CONFIGURATION_VALUE_DEFAULT_SERVER_HTTP_SSL_IS_ENABLED);
         setSslEnabled(sslEnabled);
 
-        if (isSslEnabled()) {
+        if(isSslEnabled()){
 
             setSslHandler(new SSLHandler(configuration));
 
@@ -65,15 +67,16 @@ public class HttpServerImpl extends ServerImpl<FullHttpMessage> {
 
     @Override
     protected ServerInitializer<FullHttpMessage> getServerInitializer(ServerImpl<FullHttpMessage> serverImpl, int connectionTimeout, SSLHandler sslHandler) {
-        return new HttpServerInitializer(serverImpl, connectionTimeout, sslHandler);
+        return new HttpServerInitializer(serverImpl, connectionTimeout,sslHandler);
     }
+
 
 
     @Override
     public void postProcess(IOTMessage ioTMessage) {
 
         //Always close the connection once there is a response.
-        closeClient((ChannelId) ioTMessage.getConnectionId());
+        closeClient((ChannelId)ioTMessage.getConnectionId());
 
     }
 }

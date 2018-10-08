@@ -14,7 +14,7 @@ import br.com.trustsystems.gravity.system.BaseSystemHandler;
 import org.apache.shiro.session.SessionListener;
 import rx.Observable;
 
-public abstract class Worker extends IOTBaseHandler implements SessionListener {
+public abstract class Worker extends IOTBaseHandler implements SessionListener{
 
     public static final String CORE_CONFIG_WORKER_ANNONYMOUS_LOGIN_ENABLED = "core.config.worker.annonymous.login.is.enabled";
     public static final boolean CORE_CONFIG_WORKER_ANNONYMOUS_LOGIN_ENABLED_DEFAULT_VALUE = true;
@@ -76,7 +76,6 @@ public abstract class Worker extends IOTBaseHandler implements SessionListener {
     public void setSessionResetManager(SessionResetManager sessionResetManager) {
         this.sessionResetManager = sessionResetManager;
     }
-
     public boolean isAnnonymousLoginEnabled() {
         return annonymousLoginEnabled;
     }
@@ -108,6 +107,7 @@ public abstract class Worker extends IOTBaseHandler implements SessionListener {
     public void setKeepAliveInSeconds(int keepAliveInSeconds) {
         this.keepAliveInSeconds = keepAliveInSeconds;
     }
+
 
 
     /**
@@ -150,7 +150,7 @@ public abstract class Worker extends IOTBaseHandler implements SessionListener {
 
 
                 }, throwable -> {
-                    if (!(throwable instanceof DoesNotExistException)) {
+                    if(!(throwable instanceof DoesNotExistException)){
                         log.error(" dirtyDisconnect : problems getting will ", throwable);
                     }
                 }
@@ -166,7 +166,7 @@ public abstract class Worker extends IOTBaseHandler implements SessionListener {
      *
      * @param iotMessage
      */
-    public final void pushToServer(IOTMessage iotMessage) {
+    public final void pushToServer(IOTMessage iotMessage){
 
         log.info(" pushToServer : sending to client {}", iotMessage);
 
@@ -177,12 +177,12 @@ public abstract class Worker extends IOTBaseHandler implements SessionListener {
     @Override
     public int compareTo(BaseSystemHandler baseSystemHandler) {
 
-        if (null == baseSystemHandler)
+        if(null == baseSystemHandler)
             throw new NullPointerException("You can't compare a null object.");
 
-        if (baseSystemHandler instanceof Worker)
+        if(baseSystemHandler instanceof Worker)
             return 0;
-        else if (baseSystemHandler instanceof Server)
+        else if(baseSystemHandler instanceof Server)
             return 1;
         else
             return -1;

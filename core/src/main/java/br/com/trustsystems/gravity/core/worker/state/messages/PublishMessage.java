@@ -19,17 +19,18 @@ public final class PublishMessage extends IOTMessage implements IdKeyComposer {
     public static final long ID_TO_FORCE_GENERATION_ON_SAVE = -517715;
 
 
-    @QuerySqlField(orderedGroups = {
+
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_clientid_msgid_inbound_idx", order = 0)
     })
     private String partition;
 
-    @QuerySqlField(orderedGroups = {
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_clientid_msgid_inbound_idx", order = 2)
     })
     private String clientId;
 
-    @QuerySqlField(orderedGroups = {
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_clientid_msgid_inbound_idx", order = 6)
     })
     private boolean inBound;
@@ -50,67 +51,6 @@ public final class PublishMessage extends IOTMessage implements IdKeyComposer {
 
     private Serializable payload;
 
-    public static PublishMessage from(long messageId, boolean dup, int qos, boolean retain, String topic, ByteBuffer payloadBuffer, boolean inBound) {
-
-        if (messageId < 1 && messageId != ID_TO_FORCE_GENERATION_ON_SAVE) {
-
-
-            if (qos == 0) {
-                //The Packet Identifier field is only present
-                // in PUBLISH Packets where the QoS level is 1 or 2
-                messageId = 0;
-            } else
-                throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
-        }
-
-        if (0 > qos || qos > 2) {
-            throw new IllegalArgumentException("qos: " + qos + " (expected: 0, 1 or 2 )");
-        }
-
-
-        PublishMessage publishMessage = new PublishMessage();
-        publishMessage.setMessageType(MESSAGE_TYPE);
-        publishMessage.setQos(qos);
-        publishMessage.setRetain(retain);
-        publishMessage.setDup(dup);
-        publishMessage.setTopic(topic);
-        publishMessage.setMessageId(messageId);
-
-        publishMessage.setPayload(toBytes(payloadBuffer));
-        publishMessage.setInBound(inBound);
-
-        return publishMessage;
-    }
-
-    /**
-     * Get byte array from ByteBuffer.
-     * This function returns a byte array reference that has exactly the same
-     * valid range as the ByteBuffer. Note that you should not write to the
-     * resulting byte array directly. If you want a writable copy, please use
-     * org.apache.hadoop.hbase.util.Bytes.toBytes(ByteBuffer).
-     *
-     * @param bb the byte buffer
-     * @return a reference to a byte array that contains the same content as the
-     * given ByteBuffer
-     */
-    public static byte[] toBytes(final ByteBuffer bb) {
-        // we cannot call array() on read only or direct ByteBuffers
-        if (bb.isReadOnly() || bb.isDirect()) {
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream(bb.limit());
-                Channels.newChannel(out).write(bb);
-                return out.toByteArray();
-            } catch (IOException e) {
-                throw new RuntimeException(e); // memory error
-            }
-        } else if (bb.array().length == bb.limit()) {
-            return bb.array();
-        } else {
-            return Arrays.copyOfRange(
-                    bb.array(), bb.arrayOffset(), bb.arrayOffset() + bb.limit()
-            );
-        }
-    }
 
     public int getQos() {
         return qos;
@@ -192,8 +132,40 @@ public final class PublishMessage extends IOTMessage implements IdKeyComposer {
         this.payload = payload;
     }
 
+    public static PublishMessage from( long messageId, boolean dup, int qos, boolean retain, String topic, ByteBuffer payloadBuffer, boolean inBound) {
+
+        if (messageId < 1 && messageId != ID_TO_FORCE_GENERATION_ON_SAVE) {
+
+
+            if(qos == 0 ){
+                //The Packet Identifier field is only present
+                // in PUBLISH Packets where the QoS level is 1 or 2
+                messageId = 0;
+            }else
+            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
+        }
+
+        if(0 > qos || qos > 2 ){
+            throw new IllegalArgumentException("qos: " + qos + " (expected: 0, 1 or 2 )");
+        }
+
+
+        PublishMessage publishMessage = new PublishMessage();
+        publishMessage.setMessageType(MESSAGE_TYPE);
+        publishMessage.setQos(qos);
+        publishMessage.setRetain(retain);
+        publishMessage.setDup(dup);
+        publishMessage.setTopic(topic);
+        publishMessage.setMessageId(messageId);
+
+        publishMessage.setPayload(toBytes(payloadBuffer));
+        publishMessage.setInBound(inBound);
+
+        return publishMessage;
+    }
+
     @Override
-    public Serializable generateIdKey() throws UnRetriableException {
+    public Serializable generateIdKey() throws UnRetriableException{
 
         if (null == getClientId() || getId() <= 0) {
             throw new UnRetriableException(" Messages are stored only if they have an owner and a global Id");
@@ -204,29 +176,61 @@ public final class PublishMessage extends IOTMessage implements IdKeyComposer {
 
     public PublishMessage cloneMessage() {
 
-        ByteBuffer byteBuffer = ByteBuffer.wrap((byte[]) getPayload());
+        ByteBuffer byteBuffer = ByteBuffer.wrap((byte[])getPayload());
 
         long messageId = getMessageId();
-        if (getQos() > 0) {
-            messageId = ID_TO_FORCE_GENERATION_ON_SAVE;
+        if(getQos() > 0 ){
+           messageId = ID_TO_FORCE_GENERATION_ON_SAVE;
         }
 
-        PublishMessage publishMessage = PublishMessage.from(messageId, false, getQos(), false, getTopic(), byteBuffer, false);
+        PublishMessage publishMessage = PublishMessage.from(messageId, false, getQos(), false,  getTopic(), byteBuffer, false);
         publishMessage.setProtocal(getProtocol());
 
         return publishMessage;
     }
 
+    /**
+     * Get byte array from ByteBuffer.
+     * This function returns a byte array reference that has exactly the same
+     * valid range as the ByteBuffer. Note that you should not write to the
+     * resulting byte array directly. If you want a writable copy, please use
+     * org.apache.hadoop.hbase.util.Bytes.toBytes(ByteBuffer).
+     *
+     * @param bb  the byte buffer
+     * @return a reference to a byte array that contains the same content as the
+     *         given ByteBuffer
+     */
+    public static byte[] toBytes(final ByteBuffer bb) {
+        // we cannot call array() on read only or direct ByteBuffers
+        if (bb.isReadOnly() || bb.isDirect()) {
+            try {
+                ByteArrayOutputStream out = new ByteArrayOutputStream(bb.limit());
+                Channels.newChannel(out).write(bb);
+                return out.toByteArray();
+            } catch (IOException e) {
+                throw new RuntimeException(e); // memory error
+            }
+        } else if (bb.array().length == bb.limit()) {
+            return bb.array();
+        } else {
+            return Arrays.copyOfRange(
+                    bb.array(), bb.arrayOffset(), bb.arrayOffset() + bb.limit()
+            );
+        }
+    }
+
+
+
     @Override
     public String toString() {
         return getClass().getName() + '['
-                + "messageId=" + getMessageId() + ","
-                + "partition=" + getPartition() + ","
-                + "clientId=" + getClientId() + ","
-                + "sessionId=" + getSessionId() + ","
-                + "topic=" + getTopic() + ","
-                + "qos=" + getQos() + ","
-                + ']';
+                + "messageId=" + getMessageId() +","
+                + "partition=" + getPartition() +","
+                + "clientId=" + getClientId() +","
+                + "sessionId=" + getSessionId() +","
+                + "topic=" + getTopic() +","
+                + "qos=" + getQos() +","
+                +  ']';
     }
 
 }

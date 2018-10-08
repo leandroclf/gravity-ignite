@@ -8,6 +8,7 @@ import br.com.trustsystems.gravity.core.worker.state.models.Client;
 import br.com.trustsystems.gravity.core.worker.state.models.Subscription;
 import br.com.trustsystems.gravity.core.worker.state.models.SubscriptionFilter;
 import br.com.trustsystems.gravity.datastore.ignitecache.internal.impl.*;
+import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import br.com.trustsystems.gravity.security.realm.state.IOTAccount;
 import br.com.trustsystems.gravity.security.realm.state.IOTRole;
 import org.apache.commons.configuration.Configuration;
@@ -41,9 +42,10 @@ public class IgniteDatastore extends Datastore {
      * pick the settings it has registered on the configuration file for its particular use.
      *
      * @param configuration
+     * @throws UnRetriableException
      */
     @Override
-    public void configure(Configuration configuration) {
+    public void configure(Configuration configuration) throws UnRetriableException {
 
         clientHandler.configure(configuration);
 
@@ -65,9 +67,11 @@ public class IgniteDatastore extends Datastore {
     /**
      * <code>initiate</code> starts the operations of this system handler.
      * All excecution code for the plugins is expected to begin at this point.
+     *
+     * @throws UnRetriableException
      */
     @Override
-    public void initiate() {
+    public void initiate() throws UnRetriableException {
 
 
         clientHandler.initiate(Client.class, getIgnite());

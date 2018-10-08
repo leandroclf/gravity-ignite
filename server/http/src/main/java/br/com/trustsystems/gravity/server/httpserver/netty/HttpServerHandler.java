@@ -27,41 +27,44 @@ public class HttpServerHandler extends ServerHandler<FullHttpMessage> {
      * @param ctx the {@link ChannelHandlerContext} which this {@link SimpleChannelInboundHandler}
      *            belongs to
      * @param msg the message to handle
+     * @throws Exception is thrown if an error occurred
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, FullHttpMessage msg) {
+    protected void messageReceived(ChannelHandlerContext ctx, FullHttpMessage msg) throws Exception {
 
         log.debug(" messageReceived : received the message {}", msg);
 
-        Serializable connectionId = ctx.channel().attr(ServerImpl.REQUEST_CONNECTION_ID).get();
+         Serializable connectionId = ctx.channel().attr(ServerImpl.REQUEST_CONNECTION_ID).get();
 
         getInternalServer().pushToWorker(connectionId, null, msg);
 
     }
 
 
+
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 
-        try {
-            log.info(" exceptionCaught : Unhandled exception: ", cause);
+            try {
+                log.info(" exceptionCaught : Unhandled exception: " , cause);
 
-            JSONObject error = new JSONObject();
-            error.put("message", cause.getMessage());
-            error.put("status", "failure");
+                JSONObject error = new JSONObject();
+                error.put("message", cause.getMessage());
+                error.put("status", "failure");
 
-            ByteBuf buffer = Unpooled.copiedBuffer(error.toString(), CharsetUtil.UTF_8);
+                ByteBuf buffer = Unpooled.copiedBuffer(error.toString(), CharsetUtil.UTF_8);
 
-            // Build the response object.
-            FullHttpResponse httpResponse = new DefaultFullHttpResponse(
-                    HttpVersion.HTTP_1_1,
-                    HttpResponseStatus.INTERNAL_SERVER_ERROR,
-                    buffer);
+                // Build the response object.
+                FullHttpResponse httpResponse = new DefaultFullHttpResponse(
+                        HttpVersion.HTTP_1_1,
+                        HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                        buffer);
 
-            ctx.channel().writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
-        } catch (Exception ex) {
-            log.debug(" exceptionCaught : trying to close socket because we got an unhandled exception", ex);
-        }
+                ctx.channel().writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+            } catch (Exception ex) {
+                log.debug(" exceptionCaught : trying to close socket because we got an unhandled exception", ex);
+            }
+
 
 
     }

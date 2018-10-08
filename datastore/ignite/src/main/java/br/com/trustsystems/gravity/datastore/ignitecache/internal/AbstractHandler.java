@@ -37,15 +37,6 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
 
     private Class<T> classType;
 
-    public static String preparePlaceHolders(int length) {
-        StringBuilder builder = new StringBuilder(length * 2 - 1);
-        for (int i = 0; i < length; i++) {
-            if (i > 0) builder.append(',');
-            builder.append('?');
-        }
-        return builder.toString();
-    }
-
     public String getCacheName() {
         return cacheName;
     }
@@ -53,6 +44,7 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
     public void setCacheName(String cacheName) {
         this.cacheName = cacheName;
     }
+
 
     public IgniteCache<Serializable, T> getDatastoreCache() {
         return datastoreCache;
@@ -96,12 +88,12 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
 
         classType = t;
 
-        String nameOfSequence = getCacheName() + "-sequence";
+        String nameOfSequence = getCacheName()+"-sequence";
         initializeSequence(nameOfSequence, ignite);
 
     }
 
-    public void initializeSequence(String nameOfSequence, Ignite ignite) {
+    public void initializeSequence(String nameOfSequence , Ignite ignite) {
 
         long currentTime = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC);
         IgniteAtomicSequence idSequence = ignite.atomicSequence(nameOfSequence, currentTime, true);
@@ -114,7 +106,7 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
         return clCfg;
     }
 
-    public long nextId() {
+    public long nextId(){
         return idSequence.incrementAndGet();
     }
 
@@ -122,34 +114,35 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
 
         return Observable.create(observer -> {
 
-            try {
-                // do work on separate thread
-                getDatastoreCache().get(key);
-                IgniteFuture<T> future = getDatastoreCache().future();
+                try {
+                    // do work on separate thread
+                    getDatastoreCache().get(key);
+                    IgniteFuture<T> future = getDatastoreCache().future();
 
-                future.listen(value -> {
-                    // callback with value only if not null
+                    future.listen(value -> {
+                        // callback with value only if not null
 
-                    T actualResult = value.get();
-                    if (null != actualResult) {
-                        observer.onNext(actualResult);
-                        observer.onCompleted();
-                    } else {
-                        observer.onError(new DoesNotExistException(String.format("%s with key [%s] does not exist.", classType, key)));
-                    }
+                        T actualResult = value.get();
+                        if(null != actualResult) {
+                            observer.onNext(actualResult);
+                            observer.onCompleted();
+                        }else{
+                            observer.onError(new DoesNotExistException(String.format("%s with key [%s] does not exist.", classType, key)));
+                        }
 
-                });
+                    });
 
 
-            } catch (Exception e) {
-                observer.onError(e);
-            }
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
 
         });
 
     }
 
-    public Observable<T> getByKeyWithDefault(Serializable key, T defaultValue) {
+
+public Observable<T> getByKeyWithDefault(Serializable key, T defaultValue) {
 
         return Observable.create(observer -> {
 
@@ -164,7 +157,7 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
                     T value = f.get();
                     if (null != value) {
                         observer.onNext(value);
-                    } else {
+                    }else {
                         observer.onNext(defaultValue);
                     }
                     observer.onCompleted();
@@ -179,103 +172,116 @@ public abstract class AbstractHandler<T extends IdKeyComposer> implements Serial
 
     }
 
-    public Observable<T> getByQuery(Class<T> t, String query, Object[] params) {
+
+
+    public Observable<T>  getByQuery(Class<T> t, String query, Object[] params ) {
 
         return Observable.create(observer -> {
 
-            try {
+                try {
 
-                SqlQuery sql = new SqlQuery<Serializable, T>(t, query);
-                sql.setArgs(params);
+                    SqlQuery sql = new SqlQuery<Serializable, T>(t, query);
+                    sql.setArgs(params);
 
-                // Find all messages belonging to a client.
-                QueryCursor<Entry<Serializable, T>> queryResult = getDatastoreCache().query(sql);
+                    // Find all messages belonging to a client.
+                    QueryCursor<Entry<Serializable, T>> queryResult = getDatastoreCache().query(sql);
 
-                for (Entry<Serializable, T> entry : queryResult) {
-                    // callback with value
-                    observer.onNext(entry.getValue());
-                }
-
-
-                observer.onCompleted();
-            } catch (Exception e) {
-                observer.onError(e);
-            }
-
-        });
-
-    }
-
-    public <L extends Serializable> Observable<L> getByQueryAsValue(Class<L> l, String query, Object[] params) {
-
-        return Observable.create(observer -> {
-
-            try {
-
-                SqlFieldsQuery sql = new SqlFieldsQuery(query);
-
-
-                // Execute the query and obtain the query result cursor.
-                try (QueryCursor<List<?>> queryResult = getDatastoreCache().query(sql.setArgs(params))) {
-                    // callback with value
-
-                    for (List entry : queryResult) {
+                    for (Entry<Serializable, T> entry : queryResult) {
                         // callback with value
-                        observer.onNext((L) entry.get(0));
+                        observer.onNext(entry.getValue());
                     }
 
-                }
 
-                observer.onCompleted();
-            } catch (Exception e) {
-                observer.onError(e);
-            }
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
 
         });
 
     }
 
-    public Observable<List> getByQueryAsValueList(String query, Object[] params) {
+public <L extends Serializable> Observable<L>  getByQueryAsValue(Class<L> l, String query, Object[] params ) {
 
         return Observable.create(observer -> {
 
-            try {
+                try {
 
-                SqlFieldsQuery sql = new SqlFieldsQuery(query);
+                    SqlFieldsQuery sql = new SqlFieldsQuery(query);
 
 
-                // Execute the query and obtain the query result cursor.
-                try (QueryCursor<?> cursor = getDatastoreCache().query(sql.setArgs(params))) {
-                    // callback with value
-                    observer.onNext(cursor.getAll());
+                    // Execute the query and obtain the query result cursor.
+                    try (QueryCursor<List<?>> queryResult =  getDatastoreCache().query(sql.setArgs(params))) {
+                        // callback with value
+
+                        for (List entry : queryResult) {
+                            // callback with value
+                            observer.onNext((L) entry.get(0));
+                        }
+
+                    }
+
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
                 }
-
-                observer.onCompleted();
-            } catch (Exception e) {
-                observer.onError(e);
-            }
 
         });
 
     }
 
-    public void save(T item) {
-        try {
-            getDatastoreCache().put(item.generateIdKey(), item);
-        } catch (UnRetriableException e) {
-            log.error(" save : issues while saving item ", e);
-        }
+public Observable<List>  getByQueryAsValueList(String query, Object[] params ) {
+
+        return Observable.create(observer -> {
+
+                try {
+
+                    SqlFieldsQuery sql = new SqlFieldsQuery(query);
+
+
+                    // Execute the query and obtain the query result cursor.
+                    try (QueryCursor<?> cursor =  getDatastoreCache().query(sql.setArgs(params))) {
+                        // callback with value
+                        observer.onNext(cursor.getAll());
+                    }
+
+                    observer.onCompleted();
+                } catch (Exception e) {
+                    observer.onError(e);
+                }
+
+        });
+
+    }
+
+
+    public void save(T  item) {
+            try {
+                getDatastoreCache().put(item.generateIdKey(), item);
+            } catch (UnRetriableException e) {
+                log.error(" save : issues while saving item ", e);
+            }
 
     }
 
     public void remove(IdKeyComposer item) {
 
-        try {
-            getDatastoreCache().remove(item.generateIdKey());
-        } catch (UnRetriableException e) {
+            try {
+                getDatastoreCache().remove(item.generateIdKey());
+            } catch (UnRetriableException e) {
 
+            }
+
+    }
+
+
+    public static String preparePlaceHolders(int length) {
+        StringBuilder builder = new StringBuilder(length * 2 - 1);
+        for (int i = 0; i < length; i++) {
+            if (i > 0) builder.append(',');
+            builder.append('?');
         }
-
+        return builder.toString();
     }
 
 

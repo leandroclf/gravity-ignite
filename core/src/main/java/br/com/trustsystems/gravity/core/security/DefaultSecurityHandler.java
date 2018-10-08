@@ -33,16 +33,24 @@ import java.util.Set;
 
 public class DefaultSecurityHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultSecurityHandler.class);
+
     public static final String CONFIGURATION_VALUE_DEFAULT_SECURITY_FILE_NAME = "security.ini";
+
     public static final String SYSTEM_CONFIG_SECURITY_CONFIG_DIRECTORY = "system.config.security.config.directory";
     public static final String SYSTEM_CONFIG_SECURITY_CONFIG_DIRECTORY_DEFAULT_VALUE = "";
-    public static final String CONFIG_IGNITECACHE_SESSION_CACHE_NAME = "config.ignitecache.session.cache.name";
-    public static final String CONFIG_IGNITECACHE_SESSION_CACHE_NAME_VALUE_DEFAULT = "gravity_session_cache";
-    public static final String CONFIG_IGNITECACHE_SESSION_ATOMIC_SEQUENCE_NAME = "config.ignitecache.session.atomic.sequence.name";
-    public static final String CONFIG_IGNITECACHE_SESSION_ATOMIC_SEQUENCE_NAME_VALUE_DEFAULT = "gravity_session_atomic_sequence";
-    private static final Logger log = LoggerFactory.getLogger(DefaultSecurityHandler.class);
+
+
     private final String securityFileName;
     private String securityFileDirectory;
+
+    public static final String CONFIG_IGNITECACHE_SESSION_CACHE_NAME = "config.ignitecache.session.cache.name";
+    public static final String CONFIG_IGNITECACHE_SESSION_CACHE_NAME_VALUE_DEFAULT = "gravity_session_cache";
+
+    public static final String CONFIG_IGNITECACHE_SESSION_ATOMIC_SEQUENCE_NAME = "config.ignitecache.session.atomic.sequence.name";
+    public static final String CONFIG_IGNITECACHE_SESSION_ATOMIC_SEQUENCE_NAME_VALUE_DEFAULT = "gravity_session_atomic_sequence";
+
+
     private String cacheName;
     private String atomicSequenceName;
     private IgniteCache<Serializable, IOTSession> sessionsCache;
@@ -52,11 +60,11 @@ public class DefaultSecurityHandler {
 
     private Set<SessionListener> sessionListenerList = new HashSet<>();
 
-    public DefaultSecurityHandler() {
+    public DefaultSecurityHandler(){
         this.securityFileName = CONFIGURATION_VALUE_DEFAULT_SECURITY_FILE_NAME;
     }
 
-    public DefaultSecurityHandler(String securityFileName) {
+    public DefaultSecurityHandler(String securityFileName){
         this.securityFileName = securityFileName;
     }
 
@@ -116,26 +124,27 @@ public class DefaultSecurityHandler {
         return sessionListenerList;
     }
 
-    public String getSecurityIniPath() throws UnRetriableException {
+    public String getSecurityIniPath() throws UnRetriableException{
 
-        File securityFile = new File(getSecurityFileDirectory() + File.separator + getSecurityFileName());
+        File securityFile = new File(getSecurityFileDirectory()+File.separator+getSecurityFileName());
 
-        if (!securityFile.exists()) {
+        if(!securityFile.exists()) {
 
-            log.warn(" getSecurityIniPath : Security file not found in the configurations directory. Falling back to the defaults");
+            log.warn( " getSecurityIniPath : Security file not found in the configurations directory. Falling back to the defaults");
 
             securityFile = ResourceFileUtil.getFileFromResource(getClass(), getSecurityFileName());
 
-            return securityFile.getPath();
+                return securityFile.getPath();
 
-        } else {
+        }else {
             return securityFile.getPath();
         }
 
     }
 
 
-    public void configure(Configuration configuration) {
+    public void configure(Configuration configuration){
+
 
 
         String securityFileDirectory = System.getProperty("gravity.default.path.conf", SYSTEM_CONFIG_SECURITY_CONFIG_DIRECTORY_DEFAULT_VALUE);
@@ -153,7 +162,7 @@ public class DefaultSecurityHandler {
     }
 
 
-    public void createSecurityManager(String securityFilePath) throws UnRetriableException {
+    public void createSecurityManager(String securityFilePath) throws UnRetriableException{
 
 
         Ini ini = new Ini();
@@ -163,7 +172,7 @@ public class DefaultSecurityHandler {
 
         SecurityManager securityManager = iniSecurityManagerFactory.getInstance();
 
-        if (securityManager instanceof IOTSecurityManager) {
+        if(securityManager instanceof IOTSecurityManager) {
 
             //configure the security manager.
             IOTSecurityManager iotSecurityManager = (IOTSecurityManager) securityManager;
@@ -171,6 +180,7 @@ public class DefaultSecurityHandler {
 
 
             SecurityUtils.setSecurityManager(iotSecurityManager);
+
 
 
             //Create our sessions DAO
@@ -183,13 +193,15 @@ public class DefaultSecurityHandler {
             sessionManager.setSessionValidationInterval(1000);
 
 
-        } else {
-            throw new UnRetriableException("Security manager has to be an instance of the default security manager (DefaultSecurityManager). " + securityManager.getClass().getName() + " was used instead.");
+        }else {
+            throw new UnRetriableException("Security manager has to be an instance of the default security manager (DefaultSecurityManager). "+securityManager.getClass().getName()+" was used instead." );
         }
     }
 
 
-    public void initiate(Ignite ignite) {
+
+
+    public void initiate(Ignite ignite){
 
         CacheConfiguration clCfg = new CacheConfiguration();
 

@@ -12,7 +12,7 @@ public abstract class ServerInitializer<T> extends ChannelInitializer<SocketChan
     private final SSLHandler sslHandler;
     private final ServerImpl serverImpl;
 
-    public ServerInitializer(ServerImpl serverImpl, int connectionTimeout, SSLHandler sslHandler) {
+    public ServerInitializer(ServerImpl serverImpl,  int connectionTimeout, SSLHandler sslHandler) {
         this.serverImpl = serverImpl;
         this.sslHandler = sslHandler;
         this.connectionTimeout = connectionTimeout;
@@ -49,7 +49,7 @@ public abstract class ServerInitializer<T> extends ChannelInitializer<SocketChan
 
         ChannelPipeline pipeline = ch.pipeline();
 
-        if (null != getSslHandler()) {
+        if(null != getSslHandler()) {
             // Add SSL handler first to encrypt and decrypt everything.
             // In this application ssl is only used for transport encryption
             // Identification is not yet part of the deal.
@@ -63,6 +63,7 @@ public abstract class ServerInitializer<T> extends ChannelInitializer<SocketChan
     }
 
     protected abstract void customizePipeline(ChannelPipeline pipeline);
+
 
 
 }

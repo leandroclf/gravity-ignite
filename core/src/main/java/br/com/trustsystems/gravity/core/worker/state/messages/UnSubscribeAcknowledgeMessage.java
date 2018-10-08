@@ -10,6 +10,14 @@ public final class UnSubscribeAcknowledgeMessage extends IOTMessage {
     private final int qos = 0;
     private final boolean retain;
 
+    public static UnSubscribeAcknowledgeMessage from(long messageId) {
+        if (messageId < 1 ) {
+            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
+        }
+
+        return new UnSubscribeAcknowledgeMessage(messageId, false,false);
+    }
+
     private UnSubscribeAcknowledgeMessage(long messageId, boolean dup, boolean retain) {
 
         setMessageType(MESSAGE_TYPE);
@@ -18,14 +26,6 @@ public final class UnSubscribeAcknowledgeMessage extends IOTMessage {
         this.dup = dup;
         this.retain = retain;
 
-    }
-
-    public static UnSubscribeAcknowledgeMessage from(long messageId) {
-        if (messageId < 1) {
-            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
-        }
-
-        return new UnSubscribeAcknowledgeMessage(messageId, false, false);
     }
 
     public boolean isDup() {

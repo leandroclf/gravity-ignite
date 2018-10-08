@@ -7,18 +7,17 @@ import org.apache.shiro.config.Ini;
 import org.apache.shiro.config.IniSecurityManagerFactory;
 import org.apache.shiro.realm.Realm;
 
-public class IOTIniSecurityManagerFactory extends IniSecurityManagerFactory {
+public class IOTIniSecurityManagerFactory extends IniSecurityManagerFactory{
 
     public static final String INI_REALM_NAME = "gravityIniRealm";
 
     private IOTAccountDatastore iotAccountDatastore;
-
     /**
      * Creates a new instance.  See the {@link #getInstance()} JavaDoc for detailed explanation of how an INI
      * source will be resolved to use to build the instance.
      */
 
-    public IOTIniSecurityManagerFactory(Ini config, IOTAccountDatastore iotAccountDatastore) {
+    public IOTIniSecurityManagerFactory(Ini config, IOTAccountDatastore iotAccountDatastore ) {
         super(config);
 
         setIotAccountDatastore(iotAccountDatastore);

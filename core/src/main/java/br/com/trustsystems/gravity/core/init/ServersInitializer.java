@@ -34,18 +34,27 @@ import java.util.concurrent.ExecutorService;
 
 public abstract class ServersInitializer implements SystemInitializer {
 
+    public final Logger log = LoggerFactory.getLogger(this.getClass());
+
     public static final String CORE_CONFIG_ENGINE_SERVER_IS_ENABLED = "core.config.engine.server.is.enabled";
     public static final boolean CORE_CONFIG_ENGINE_SERVER_IS_ENABLED_DEFAULT_VALUE = true;
+
     public static final String CORE_CONFIG_ENGINE_EXCECUTOR_IS_CLUSTER_SEPARATED = "core.config.engine.excecutor.is.cluster.separated";
     public static final boolean CORE_CONFIG_ENGINE_EXCECUTOR_IS_CLUSTER_SEPARATED_DEFAULT_VALUE = false;
+
     public static final String CORE_CONFIG_DEFAULT_ENGINE_EXCECUTOR_NAME = "core.config.engine.excecutor.default.name";
     public static final String CORE_CONFIG_DEFAULT_ENGINE_EXCECUTOR_NAME_DEFAULT_VALUE = "gravity-cluster";
+
     public static final String CORE_CONFIG_ENGINE_EXCECUTOR_SERVER_NAME = "core.config.engine.excecutor.server.name";
+
     public static final String CORE_CONFIG_ENGINE_EXCECUTOR_WORKER_NAME = "core.config.engine.excecutor.worker.name";
+
     public static final String CORE_CONFIG_ENGINE_EXCECUTOR_DATASTORE_NAME = "core.config.engine.excecutor.datastore.name";
+
     public static final String CORE_CONFIG_ENGINE_EXCECUTOR_EVENT_NAME = "core.config.engine.excecutor.event.name";
+
     public static final String CORE_CONFIG_ENGINE_CLUSTER_DISCOVERY_ADDRESSES = "core.config.engine.cluster.discovery.addresses";
-    public final Logger log = LoggerFactory.getLogger(this.getClass());
+
     private boolean serverEngineEnabled;
 
     private boolean executorClusterSeparated;
@@ -65,8 +74,6 @@ public abstract class ServersInitializer implements SystemInitializer {
     private List<Subscription> rxSubscriptionList = new ArrayList<>();
 
     private ExecutorService executorService;
-    private List<Server> serverList = new ArrayList<>();
-    private ServerRouter serverRouter;
 
     public boolean isServerEngineEnabled() {
         return serverEngineEnabled;
@@ -132,6 +139,8 @@ public abstract class ServersInitializer implements SystemInitializer {
         this.discoveryAddresses = discoveryAddresses;
     }
 
+    private List<Server> serverList = new ArrayList<>();
+
     public List<Server> getServerList() {
         return serverList;
     }
@@ -139,6 +148,7 @@ public abstract class ServersInitializer implements SystemInitializer {
     public List<Subscription> getRxSubscriptionList() {
         return rxSubscriptionList;
     }
+
 
     public ExecutorService getExecutorService() {
         return executorService;
@@ -166,6 +176,7 @@ public abstract class ServersInitializer implements SystemInitializer {
             server.initiate();
         }
     }
+
 
     /**
      * <code>classifyBaseHandler</code> separates the base system handler plugins
@@ -241,6 +252,7 @@ public abstract class ServersInitializer implements SystemInitializer {
         setDiscoveryAddresses(discoveryAddresses);
     }
 
+
     /**
      * <code>systemInitialize</code> is the entry method to start all the operations within iotracah.
      * This class is expected to be extended by the core plugin only.
@@ -257,68 +269,68 @@ public abstract class ServersInitializer implements SystemInitializer {
 
         //Initiate ignite.
 
-        synchronized (this) {
+            synchronized (this) {
 
-            TcpDiscoverySpi spi = new TcpDiscoverySpi();
-            TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
+                TcpDiscoverySpi spi = new TcpDiscoverySpi();
+                TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
 
-            // Set initial IP addresses.
-            // Note that you can optionally specify a port or a port range.
-            ipFinder.setAddresses(Arrays.asList(getDiscoveryAddresses()));
+                // Set initial IP addresses.
+                // Note that you can optionally specify a port or a port range.
+                ipFinder.setAddresses(Arrays.asList(getDiscoveryAddresses()));
 
-            spi.setIpFinder(ipFinder);
+                spi.setIpFinder(ipFinder);
 
-            IgniteConfiguration cfg = new IgniteConfiguration();
-            cfg.setGridName(getExecutorDefaultName());
+                IgniteConfiguration cfg = new IgniteConfiguration();
+                cfg.setGridName(getExecutorDefaultName());
 
-            // Override default discovery SPI.
-            cfg.setDiscoverySpi(spi);
+                // Override default discovery SPI.
+                cfg.setDiscoverySpi(spi);
 
-            //Set node attribute.
-            Map<String, String> attributes = new HashMap<>();
-            attributes.put("ROLE", getExecutorDefaultName());
-            cfg.setUserAttributes(attributes);
+                //Set node attribute.
+                Map<String, String> attributes = new HashMap<>();
+                attributes.put("ROLE", getExecutorDefaultName());
+                cfg.setUserAttributes(attributes);
 
-            //Use sl4j logger
-            IgniteLogger gridLog = new Slf4jLogger(LoggerFactory.getLogger("org.apache.ignite")); // Provide correct SLF4J logger here.
-            cfg.setGridLogger(gridLog);
+                //Use sl4j logger
+                IgniteLogger gridLog = new Slf4jLogger(LoggerFactory.getLogger("org.apache.ignite")); // Provide correct SLF4J logger here.
+                cfg.setGridLogger(gridLog);
 
-            //Optimize marshaller
-            OptimizedMarshaller optimizedMarshaller = new OptimizedMarshaller();
+                //Optimize marshaller
+                OptimizedMarshaller optimizedMarshaller = new OptimizedMarshaller();
 //                optimizedMarshaller.setRequireSerializable(false);
-            cfg.setMarshaller(optimizedMarshaller);
+                cfg.setMarshaller(optimizedMarshaller);
 
-            Ignition.start(cfg);
+                Ignition.start(cfg);
 
-            //Also instantiate the server router.
-            IgniteMessaging igniteMessaging = getIgnite().message();
+                //Also instantiate the server router.
+                IgniteMessaging igniteMessaging = getIgnite().message();
 
-            String cluster = getExecutorDefaultName();
+                String cluster = getExecutorDefaultName();
 
-            UUID nodeId = getNodeId();
+                UUID nodeId = getNodeId();
 
-            DefaultServerRouter defaultServerRouter = new DefaultServerRouter(cluster, nodeId, igniteMessaging);
-            defaultServerRouter.initiate();
-            this.serverRouter = defaultServerRouter;
+                DefaultServerRouter defaultServerRouter = new DefaultServerRouter(cluster, nodeId, igniteMessaging);
+                defaultServerRouter.initiate();
+                this.serverRouter = defaultServerRouter;
 
-        }
+            }
 
 
         log.debug(" systemInitialize : performing classifications for base system handlers");
         baseSystemHandlerList.forEach(this::classifyBaseHandler);
     }
 
+
     /**
      * <code>subscribeObserverToObservables</code> takes in a list of observables and uses
      * it appropriately to push or link data down to the appropriate subscribers.
-     *
-     * @param subscriber
+     *  @param subscriber
      * @param observableOnSubscribers
      */
     protected void subscribeObserverToObservables(Subscriber<IOTMessage> subscriber, List observableOnSubscribers) {
 
 
-        for (Object observableOnSubscriberObject : observableOnSubscribers) {
+        for( Object observableOnSubscriberObject: observableOnSubscribers){
 
             Observable.OnSubscribe<IOTMessage> observableOnSubscriber = (Observable.OnSubscribe<IOTMessage>) observableOnSubscriberObject;
 
@@ -327,35 +339,35 @@ public abstract class ServersInitializer implements SystemInitializer {
             getRxSubscriptionList().add(subscription);
         }
     }
-
-    /**
-     * <code>subscribeObserverToObservables</code> is the secret weapon for automatic pushing
-     * of requests to the appropriate nodes for specialized execution.
-     * Worker requests are expected to be handled on worker nodes.
-     * Events occur on event nodes.
-     *
-     * @param subscriber
-     */
+        /**
+         * <code>subscribeObserverToObservables</code> is the secret weapon for automatic pushing
+         * of requests to the appropriate nodes for specialized execution.
+         * Worker requests are expected to be handled on worker nodes.
+         * Events occur on event nodes.
+         *
+         * @param subscriber
+         */
     protected Subscription subscribeObserverToAnObservable(Subscriber<IOTMessage> subscriber, Observable.OnSubscribe<IOTMessage> observableOnSubscriber) {
 
-        log.info(" subscribeObserverToAnObservable : {} subscribing to {} for updates.", subscriber, observableOnSubscriber);
+            log.info(" subscribeObserverToAnObservable : {} subscribing to {} for updates.", subscriber, observableOnSubscriber);
 
-        Observable<IOTMessage> observable = Observable.create(observableOnSubscriber);
+            Observable<IOTMessage> observable = Observable.create(observableOnSubscriber);
 
-        //The schedular obtained allows for processing of data to be sent to the
-        //correct excecutor groups.
+            //The schedular obtained allows for processing of data to be sent to the
+            //correct excecutor groups.
 
-        setExecutorService(obtainExcecutor(observableOnSubscriber));
+            setExecutorService(obtainExcecutor(observableOnSubscriber));
 
-        Scheduler scheduler = Schedulers.from(getExecutorService());
-        //Scheduler scheduler = Schedulers.from(Executors.newCachedThreadPool());
-        //Scheduler scheduler = Schedulers.io();
+            Scheduler scheduler = Schedulers.from(getExecutorService());
+            //Scheduler scheduler = Schedulers.from(Executors.newCachedThreadPool());
+            //Scheduler scheduler = Schedulers.io();
         return observable
-                .onBackpressureBuffer()
-                .subscribeOn(scheduler)
-                .subscribe(subscriber);
+                    .onBackpressureBuffer()
+                    .subscribeOn(scheduler)
+                    .subscribe(subscriber);
 
     }
+
 
     private ExecutorService obtainExcecutor(Object observableOnSubscriber) {
 
@@ -379,11 +391,11 @@ public abstract class ServersInitializer implements SystemInitializer {
             } else if (observableOnSubscriber instanceof Eventer) {
 
                 executionGrp = getIgnite().cluster().forAttribute("ROLE", getExecutorEventerName());
-            } else if (observableOnSubscriber instanceof Datastore) {
+            } else if( observableOnSubscriber instanceof Datastore) {
 
                 executionGrp = getIgnite().cluster().forAttribute("ROLE", getExecutorDatastoreName());
 
-            } else {
+            }else{
                 executionGrp = getIgnite().cluster().forAttribute("ROLE", getExecutorDefaultName());
             }
         } else {
@@ -394,9 +406,15 @@ public abstract class ServersInitializer implements SystemInitializer {
         return getIgnite().executorService(executionGrp);
     }
 
+
+
+
     public final Ignite getIgnite() {
         return Ignition.ignite(getExecutorDefaultName());
     }
+
+
+    private ServerRouter serverRouter;
 
     public ServerRouter getServerRouter() {
 

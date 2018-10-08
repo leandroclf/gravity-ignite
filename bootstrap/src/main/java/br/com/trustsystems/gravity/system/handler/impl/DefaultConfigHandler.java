@@ -21,21 +21,19 @@ public class DefaultConfigHandler implements ConfigHandler {
 
     private final String configurationDirectory;
     private final String configurationFileName;
-
-    public DefaultConfigHandler() {
+    public DefaultConfigHandler(){
 
         //Try to use the system set property.
-        this(System.getProperty("gravity.default.path.conf", DEFAULT_CONFIG_DIRECTORY));
+        this( System.getProperty("gravity.default.path.conf", DEFAULT_CONFIG_DIRECTORY ) );
 
     }
-
-    public DefaultConfigHandler(String configurationDirectory) {
-        this(configurationDirectory, SYSTEM_CONFIG_CONFIGURATION_FILE_NAME_DEFAULT_VALUE);
+    public DefaultConfigHandler(String configurationDirectory){
+        this(configurationDirectory,SYSTEM_CONFIG_CONFIGURATION_FILE_NAME_DEFAULT_VALUE);
     }
 
-    public DefaultConfigHandler(String configurationDirectory, String configurationFileName) {
+    public DefaultConfigHandler(String configurationDirectory, String configurationFileName){
 
-        if (null == configurationDirectory) {
+        if(null == configurationDirectory){
             configurationDirectory = "";
         }
         this.configurationDirectory = configurationDirectory;
@@ -50,12 +48,12 @@ public class DefaultConfigHandler implements ConfigHandler {
         return configurationFileName;
     }
 
-    private Path getConfigurationFileInDirectory(String directory) {
+    private Path getConfigurationFileInDirectory(String directory) throws IOException {
 
         String configFileName = getConfigurationFileName();
 
-        File configFile = new File(directory + File.separator + configFileName);
-        if (configFile.exists()) {
+        File configFile = new File(directory+File.separator+configFileName);
+        if(configFile.exists()){
 
             log.debug(" getConfigurationFileInDirectory : matched file {} in config directory {}.", configFileName, directory);
             return configFile.toPath();
@@ -89,24 +87,27 @@ public class DefaultConfigHandler implements ConfigHandler {
 
             if (null == configurationFile) {
 
-                configurationFile = ResourceFileUtil.getFileFromResource(getClass(), getConfigurationFileName()).toPath();
+               configurationFile = ResourceFileUtil.getFileFromResource(getClass(), getConfigurationFileName()).toPath();
 
             }
 
 
-            if (configuration instanceof CompositeConfiguration) {
-                ((CompositeConfiguration) configuration).addConfiguration(new PropertiesConfiguration(configurationFile.toFile()));
-                return configuration;
-            } else {
-                CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
 
-                if (null != configuration) {
-                    compositeConfiguration.addConfiguration(configuration);
+                if(configuration instanceof CompositeConfiguration)
+                {
+                    ((CompositeConfiguration)configuration).addConfiguration(new PropertiesConfiguration(configurationFile.toFile()));
+                    return configuration;
+                }else{
+                    CompositeConfiguration compositeConfiguration = new CompositeConfiguration();
+
+                    if(null != configuration) {
+                        compositeConfiguration.addConfiguration(configuration);
+                    }
+
+                    compositeConfiguration.addConfiguration(new PropertiesConfiguration(configurationFile.toFile()));
+                    return compositeConfiguration;
                 }
 
-                compositeConfiguration.addConfiguration(new PropertiesConfiguration(configurationFile.toFile()));
-                return compositeConfiguration;
-            }
 
 
         } catch (IOException | ConfigurationException e) {
@@ -115,6 +116,7 @@ public class DefaultConfigHandler implements ConfigHandler {
         }
 
     }
+
 
 
 }

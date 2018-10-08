@@ -22,36 +22,12 @@ public class IOTTextConfiguredRealm extends IOTAbstractRealm {
     private volatile String userDefinitions;
     private volatile String roleDefinitions;
 
-    protected static Set<String> toLines(String s) {
-        LinkedHashSet<String> set = new LinkedHashSet<String>();
-        Scanner scanner = new Scanner(s);
-        while (scanner.hasNextLine()) {
-            set.add(scanner.nextLine());
-        }
-        return set;
-    }
-
-    protected static Map<String, String> toMap(Collection<String> keyValuePairs) throws ParseException {
-        if (keyValuePairs == null || keyValuePairs.isEmpty()) {
-            return null;
-        }
-
-        Map<String, String> pairs = new HashMap<String, String>();
-        for (String pairString : keyValuePairs) {
-            String[] pair = StringUtils.splitKeyValue(pairString);
-            if (pair != null) {
-                pairs.put(pair[0].trim(), pair[1].trim());
-            }
-        }
-
-        return pairs;
-    }
 
     /**
      * Will call 'processDefinitions' on startup.
      *
-     * @see <a href="https://issues.apache.org/jira/browse/SHIRO-223">SHIRO-223</a>
      * @since 1.2
+     * @see <a href="https://issues.apache.org/jira/browse/SHIRO-223">SHIRO-223</a>
      */
     @Override
     protected void onInit() {
@@ -192,7 +168,7 @@ public class IOTTextConfiguredRealm extends IOTAbstractRealm {
                 username = matcher.group("username");
             }
 
-            IOTAccount account = getIOTAccount(partition, username);
+            IOTAccount account =  getIOTAccount(partition, username);
             if (account == null) {
 
                 account = addIOTAccount(partition, username, password);
@@ -211,6 +187,32 @@ public class IOTTextConfiguredRealm extends IOTAbstractRealm {
             saveIOTAccount(account);
         }
     }
+
+    protected static Set<String> toLines(String s) {
+        LinkedHashSet<String> set = new LinkedHashSet<String>();
+        Scanner scanner = new Scanner(s);
+        while (scanner.hasNextLine()) {
+            set.add(scanner.nextLine());
+        }
+        return set;
+    }
+
+    protected static Map<String, String> toMap(Collection<String> keyValuePairs) throws ParseException {
+        if (keyValuePairs == null || keyValuePairs.isEmpty()) {
+            return null;
+        }
+
+        Map<String, String> pairs = new HashMap<String, String>();
+        for (String pairString : keyValuePairs) {
+            String[] pair = StringUtils.splitKeyValue(pairString);
+            if (pair != null) {
+                pairs.put(pair[0].trim(), pair[1].trim());
+            }
+        }
+
+        return pairs;
+    }
+
 
 
 }

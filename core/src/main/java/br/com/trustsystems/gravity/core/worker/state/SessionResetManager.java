@@ -50,43 +50,43 @@ public class SessionResetManager {
             publishMessage = client.copyTransmissionData(publishMessage);
             //Update current session id for message.
 
-            if (publishMessage.isInBound()) {
+                    if (publishMessage.isInBound()) {
 
-                //We need to generate a PUBREC message to acknowledge message received.
-                if (publishMessage.getQos() == MqttQoS.EXACTLY_ONCE.value()) {
-
-
-                    PublishReceivedMessage publishReceivedMessage = PublishReceivedMessage.from(publishMessage.getMessageId());
-                    publishReceivedMessage.copyBase(publishMessage);
-                    getWorker().pushToServer(publishReceivedMessage);
+                        //We need to generate a PUBREC message to acknowledge message received.
+                        if (publishMessage.getQos() == MqttQoS.EXACTLY_ONCE.value()) {
 
 
-                }
-
-            } else {
-
-                if (publishMessage.getQos() == MqttQoS.EXACTLY_ONCE.value() && publishMessage.isReleased()) {
-
-                    //We need to generate a PUBREL message to allow transmission of qos 2 message.
-                    ReleaseMessage releaseMessage = ReleaseMessage.from(publishMessage.getMessageId(), true);
-                    releaseMessage.copyBase(publishMessage);
-                    getWorker().pushToServer(releaseMessage);
+                            PublishReceivedMessage publishReceivedMessage = PublishReceivedMessage.from(publishMessage.getMessageId());
+                            publishReceivedMessage.copyBase(publishMessage);
+                            getWorker().pushToServer(publishReceivedMessage);
 
 
-                } else {
+                        }
 
-                    //This message should be released to the client
-                    PublishOutHandler handler = new PublishOutHandler(publishMessage, client.getProtocalData());
-                    handler.setWorker(getWorker());
+                    } else {
 
-                    try {
-                        handler.handle();
-                    } catch (RetriableException | UnRetriableException e) {
-                        log.error(" process : problems releasing stored messages", e);
+                        if (publishMessage.getQos() == MqttQoS.EXACTLY_ONCE.value() && publishMessage.isReleased()) {
+
+                            //We need to generate a PUBREL message to allow transmission of qos 2 message.
+                            ReleaseMessage releaseMessage = ReleaseMessage.from(publishMessage.getMessageId(), true);
+                            releaseMessage.copyBase(publishMessage);
+                            getWorker().pushToServer(releaseMessage);
+
+
+                        } else {
+
+                            //This message should be released to the client
+                            PublishOutHandler handler = new PublishOutHandler(publishMessage, client.getProtocalData());
+                            handler.setWorker(getWorker());
+
+                            try {
+                                handler.handle();
+                            } catch (RetriableException | UnRetriableException e) {
+                                log.error(" process : problems releasing stored messages", e);
+                            }
+
+                        }
                     }
-
-                }
-            }
 
         });
 

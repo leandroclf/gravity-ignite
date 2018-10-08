@@ -25,13 +25,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator, Initializable, Destroyable {
+public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator, Initializable, Destroyable{
 
     private static final Logger log = LoggerFactory.getLogger(SessionDAO.class);
     private final IgniteCache<Serializable, IOTSession> sessionsCache;
     private final IgniteAtomicSequence igniteAtomicSequence;
 
-    public SessionDAO(IgniteCache<Serializable, IOTSession> sessionsCache, IgniteAtomicSequence igniteAtomicSequence) {
+    public SessionDAO(IgniteCache<Serializable, IOTSession> sessionsCache, IgniteAtomicSequence igniteAtomicSequence){
         this.sessionsCache = sessionsCache;
         this.igniteAtomicSequence = igniteAtomicSequence;
     }
@@ -59,9 +59,11 @@ public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator
 
     /**
      * Called when this object is being destroyed, allowing any necessary cleanup of internal resources.
+     *
+     * @throws Exception if an exception occurs during object destruction.
      */
     @Override
-    public void destroy() {
+    public void destroy() throws Exception {
 
         getSessionsCache().close();
         getIgniteAtomicSequence().close();
@@ -72,8 +74,8 @@ public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator
         if (id == null) {
             throw new NullPointerException("id argument cannot be null.");
         }
-        getSessionsCache().put(id, new IOTSession(session));
-        return session;
+         getSessionsCache().put(id, new IOTSession(session));
+        return  session;
     }
 
     /**
@@ -106,11 +108,11 @@ public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator
 
         IOTSession iotSession = getSessionsCache().get(sessionId);
 
-        if (null == iotSession) {
+        if(null == iotSession){
             return null;
         }
 
-        return iotSession.toSession();
+       return iotSession.toSession();
 
     }
 
@@ -125,7 +127,7 @@ public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator
      *
      * @param session the Session to update
      * @throws UnknownSessionException if no existing EIS session record exists with the
-     *                                 identifier of {@link Session#getId() session.getSessionId()}
+     *                                                          identifier of {@link Session#getId() session.getSessionId()}
      */
     @Override
     public void update(Session session) throws UnknownSessionException {
@@ -189,7 +191,7 @@ public class SessionDAO extends AbstractSessionDAO implements SessionIdGenerator
 
             Instant instant = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
 
-            Object[] params = {instant.toEpochMilli(), 100};
+            Object[] params = { instant.toEpochMilli(), 100};
 
             SqlQuery sql = new SqlQuery<Serializable, IOTSession>(IOTSession.class, query);
             sql.setArgs(params);

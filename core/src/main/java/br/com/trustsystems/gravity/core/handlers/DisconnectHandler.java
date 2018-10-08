@@ -4,6 +4,8 @@ package br.com.trustsystems.gravity.core.handlers;
 import br.com.trustsystems.gravity.core.security.AuthorityRole;
 import br.com.trustsystems.gravity.core.worker.state.messages.DisconnectMessage;
 import br.com.trustsystems.gravity.core.worker.state.models.Client;
+import br.com.trustsystems.gravity.exceptions.RetriableException;
+import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import org.apache.shiro.subject.Subject;
 import rx.Observable;
 
@@ -17,7 +19,7 @@ public class DisconnectHandler extends RequestHandler<DisconnectMessage> {
     }
 
     @Override
-    public void handle() {
+    public void handle() throws RetriableException, UnRetriableException {
 
 
         /**
@@ -32,8 +34,9 @@ public class DisconnectHandler extends RequestHandler<DisconnectMessage> {
                 (client) -> {
 
 
+
                     if (getMessage().isDirtyDisconnect()) {
-                        getWorker().publishWill(client);
+                          getWorker().publishWill(client);
                     }
 
                     logOutSession(client.getSessionId());
@@ -47,16 +50,17 @@ public class DisconnectHandler extends RequestHandler<DisconnectMessage> {
 
 
     private void logOutSession(Serializable sessionId) {
-        try {
+       try {
 
-            Subject subject = new Subject.Builder().sessionId(sessionId).buildSubject();
-            subject.logout();
+           Subject subject = new Subject.Builder().sessionId(sessionId).buildSubject();
+           subject.logout();
 
-        } catch (Exception e) {
-            log.error(" logOutSession : problems during disconnection ", e);
-        }
+       }catch (Exception e){
+           log.error(" logOutSession : problems during disconnection ", e);
+       }
 
     }
+
 
 
 }

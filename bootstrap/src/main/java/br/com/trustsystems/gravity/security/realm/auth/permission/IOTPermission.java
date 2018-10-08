@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 
 public class IOTPermission implements Permission, Serializable {
 
+    protected final Logger log = LoggerFactory.getLogger(IOTPermission.class);
+
     protected static final String PUBLISH_SUBSCRIBE_ROLE = "PUBSUB";
     protected static final String PUBLISH_ROLE = "PUBLISH";
     protected static final String SUBSCRIBE_ROLE = "SUBSCRIBE";
@@ -23,7 +25,7 @@ public class IOTPermission implements Permission, Serializable {
     protected static final String PARTITION_TOKEN = "%p";
     protected static final String CLIENT_ID_TOKEN = "%c";
     protected static final boolean DEFAULT_CASE_SENSITIVE = false;
-    protected final Logger log = LoggerFactory.getLogger(IOTPermission.class);
+
     private List<String> parts;
 
     private String type;
@@ -33,23 +35,6 @@ public class IOTPermission implements Permission, Serializable {
     private String partition;
 
     private String clientId;
-
-    public IOTPermission(String wildcardString) {
-        this(wildcardString, DEFAULT_CASE_SENSITIVE);
-
-
-    }
-
-    public IOTPermission(String wildcardString, boolean caseSensitive) {
-        setParts(wildcardString, caseSensitive);
-    }
-
-    public IOTPermission(String partition, String username, String clientId, String wildcardString) {
-        this(wildcardString);
-        setUsername(username);
-        setPartition(partition);
-        setClientId(clientId);
-    }
 
     public String getType() {
         return type;
@@ -83,6 +68,24 @@ public class IOTPermission implements Permission, Serializable {
         this.clientId = clientId;
     }
 
+    public IOTPermission(String wildcardString) {
+        this(wildcardString, DEFAULT_CASE_SENSITIVE);
+
+
+    }
+
+    public IOTPermission(String wildcardString, boolean caseSensitive) {
+        setParts(wildcardString, caseSensitive);
+    }
+
+  public IOTPermission(String partition, String username, String clientId, String wildcardString) {
+        this(wildcardString);
+      setUsername(username);
+      setPartition(partition);
+      setClientId(clientId);
+    }
+
+
     protected void setParts(String wildcardString, boolean caseSensitive) {
         if (wildcardString == null || wildcardString.trim().isEmpty()) {
             throw new InvalidPermissionStringException("string cannot be null or empty.", wildcardString);
@@ -101,7 +104,7 @@ public class IOTPermission implements Permission, Serializable {
 
         wildcardString = wildcardString.substring(indexOfColon + 1);
 
-        if (wildcardString.trim().isEmpty()) {
+        if ( wildcardString.trim().isEmpty()) {
             throw new InvalidPermissionStringException("string cannot be null or empty.", wildcardString);
         }
 
@@ -116,18 +119,18 @@ public class IOTPermission implements Permission, Serializable {
 
         for (String part : getParts()) {
 
-            if (part.isEmpty()) {
+            if (part.isEmpty() ) {
 
-                if (isFirst) {
+                if(isFirst){
                     isFirst = false;
-                } else
+                }else
 
-                    throw new InvalidPermissionStringException("permission string cannot" +
-                            " contain parts with only dividers. Make sure permission strings" +
-                            " are properly formatted ", wildcardString);
+                throw new InvalidPermissionStringException("permission string cannot" +
+                        " contain parts with only dividers. Make sure permission strings" +
+                        " are properly formatted ", wildcardString);
             }
 
-        }
+         }
 
         if (this.getParts().isEmpty()) {
             throw new IllegalArgumentException("Client permission string cannot contain only dividers. Make sure permission strings are properly formatted.");
@@ -166,7 +169,7 @@ public class IOTPermission implements Permission, Serializable {
 
         IOTPermission otherP = (IOTPermission) p;
 
-        if (!getType().equals(otherP.getType())) {
+        if(!getType().equals(otherP.getType())){
 
             if (PUBLISH_SUBSCRIBE_ROLE.equals(getType())
                     && (PUBLISH_ROLE.equals(otherP.getType())
@@ -176,9 +179,9 @@ public class IOTPermission implements Permission, Serializable {
                     || SUBSCRIBE_ROLE.equals(getType()))) {
 
                 //This is an allowed situation.
-            } else
+            }else
 
-                return false;
+            return false;
 
         }
 
@@ -213,7 +216,7 @@ public class IOTPermission implements Permission, Serializable {
                                 return false;
                             break;
                         default:
-                            if (!(Objects.equals(MULTI_LEVEL_WILDCARD_TOKEN, part)
+                            if (!( Objects.equals(MULTI_LEVEL_WILDCARD_TOKEN, part)
                                     || Objects.equals(SINGLE_LEVEL_WILDCARD_TOKEN, part)))
                                 return false;
                     }
@@ -238,13 +241,13 @@ public class IOTPermission implements Permission, Serializable {
     public String toString() {
         StringBuilder buffer = new StringBuilder();
 
-        for (String part : parts) {
-            if (buffer.length() == 0) {
+           for (String part : parts) {
+            if(buffer.length()==0){
                 buffer.append(getType()).append(":");
-            } else {
+            }else {
                 buffer.append("/");
             }
-            buffer.append(part);
+                buffer.append(part);
         }
         return buffer.toString();
     }

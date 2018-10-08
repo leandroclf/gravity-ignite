@@ -13,7 +13,8 @@ public interface LogHandler {
     String SYSTEM_CONFIG_LOGGING_LOG_CONFIG_DIRECTORY = "system.config.logging.log.config.directory";
     String SYSTEM_CONFIG_LOGGING_LOG_CONFIG_DIRECTORY_DEFAULT_VALUE = "";
 
-    String DEFAULT_CONFIG_DIRECTORY = ".." + File.separator + "conf";
+    String DEFAULT_CONFIG_DIRECTORY = ".."+ File.separator+"conf";
+
 
 
     /**

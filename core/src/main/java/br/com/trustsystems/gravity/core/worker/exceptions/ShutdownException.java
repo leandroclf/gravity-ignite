@@ -6,10 +6,10 @@ import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 
 public class ShutdownException extends UnRetriableException {
 
-    private final boolean disconnect;
     private IOTMessage response = null;
+    private final boolean disconnect;
 
-    public ShutdownException(IOTMessage response) {
+    public ShutdownException(IOTMessage response){
         this.response = response;
         this.disconnect = false;
     }
@@ -20,8 +20,7 @@ public class ShutdownException extends UnRetriableException {
     public ShutdownException(boolean disconnect) {
         this.disconnect = disconnect;
     }
-
-    /**
+ /**
      * Creates a new instance.
      */
     public ShutdownException() {

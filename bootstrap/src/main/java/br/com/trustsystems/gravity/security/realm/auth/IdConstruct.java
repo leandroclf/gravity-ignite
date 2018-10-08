@@ -42,8 +42,8 @@ public class IdConstruct implements Serializable {
         return clientId;
     }
 
-    public String getSessionId() {
-        return String.format("%s-%s-%s", getPartition(), getUsername(), getClientId());
+    public String getSessionId(){
+        return String.format("%s-%s-%s",getPartition(), getUsername(), getClientId());
     }
 
     @Override

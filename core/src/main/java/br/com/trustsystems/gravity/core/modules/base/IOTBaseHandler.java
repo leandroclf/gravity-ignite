@@ -22,19 +22,17 @@ public abstract class IOTBaseHandler extends Subscriber<IOTMessage> implements O
     private UUID nodeId;
     private String cluster;
 
-    public UUID getNodeId() {
+    public UUID getNodeId(){
         return nodeId;
     }
-
-    public void setNodeId(UUID nodeId) {
+    public void setNodeId(UUID nodeId){
         this.nodeId = nodeId;
     }
 
-    public String getCluster() {
+    public String getCluster(){
         return cluster;
     }
-
-    public void setCluster(String cluster) {
+    public void setCluster(String cluster){
         this.cluster = cluster;
     }
 
@@ -46,14 +44,9 @@ public abstract class IOTBaseHandler extends Subscriber<IOTMessage> implements O
         this.subscriberList = subscriberList;
     }
 
-    public void statGauge(String gaugeName, double value) {
-    }
-
-    public void statCounterIncrement(String counterName) {
-    }
-
-    public void statCounterDecrement(String counterName) {
-    }
+    public void statGauge(String gaugeName, double value){}
+    public void statCounterIncrement(String counterName){}
+    public void statCounterDecrement(String counterName){}
 
     @Override
     public void call(Subscriber<? super IOTMessage> subscriber) {

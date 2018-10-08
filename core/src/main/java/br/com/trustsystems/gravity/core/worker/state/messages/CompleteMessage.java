@@ -7,13 +7,8 @@ public final class CompleteMessage extends IOTMessage {
 
     public static final String MESSAGE_TYPE = "PUBCOMP";
 
-    private final int qos = 0;
+    private final int qos =0;
 
-
-    private CompleteMessage(long messageId) {
-        setMessageType(MESSAGE_TYPE);
-        setMessageId(messageId);
-    }
 
     public static CompleteMessage from(long messageId) {
         if (messageId < 1) {
@@ -21,6 +16,14 @@ public final class CompleteMessage extends IOTMessage {
         }
         return new CompleteMessage(messageId);
     }
+
+    private CompleteMessage(long messageId) {
+        setMessageType(MESSAGE_TYPE);
+        setMessageId(messageId);
+    }
+
+
+
 
     public int getQos() {
         return qos;

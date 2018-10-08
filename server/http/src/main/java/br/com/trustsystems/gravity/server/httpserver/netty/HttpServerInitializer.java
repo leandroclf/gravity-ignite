@@ -12,8 +12,9 @@ public class HttpServerInitializer extends ServerInitializer<FullHttpMessage> {
 
 
     public HttpServerInitializer(ServerImpl<FullHttpMessage> serverImpl, int connectionTimeout) {
-        super(serverImpl, connectionTimeout);
+        super(serverImpl,  connectionTimeout);
     }
+
 
 
     public HttpServerInitializer(ServerImpl<FullHttpMessage> serverImpl, int connectionTimeout, SSLHandler sslHandler) {
@@ -27,7 +28,7 @@ public class HttpServerInitializer extends ServerInitializer<FullHttpMessage> {
         pipeline.addLast("aggregator", new HttpObjectAggregator(1048576));
 
         // we finally have the chance to add some business logic.
-        pipeline.addLast(new HttpServerHandler((HttpServerImpl) getServerImpl()));
+        pipeline.addLast( new HttpServerHandler((HttpServerImpl) getServerImpl()));
 
     }
 

@@ -8,14 +8,14 @@ import org.apache.commons.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class EventersInitializer extends DatastoresInitializer {
+public abstract class EventersInitializer  extends DatastoresInitializer{
+
 
 
     public static final String CORE_CONFIG_ENGINE_EVENT_IS_ENABLED = "core.config.engine.event.is.enabled";
     public static final boolean CORE_CONFIG_ENGINE_EVENT_IS_ENABLED_DEFAULT_VALUE = true;
 
     private boolean eventEngineEnabled;
-    private List<Eventer> eventerList = new ArrayList<>();
 
     public boolean isEventEngineEnabled() {
         return eventEngineEnabled;
@@ -25,6 +25,8 @@ public abstract class EventersInitializer extends DatastoresInitializer {
         this.eventEngineEnabled = eventEngineEnabled;
     }
 
+    private List<Eventer> eventerList = new ArrayList<>();
+
     protected List<Eventer> getEventerList() {
         return eventerList;
     }
@@ -33,6 +35,8 @@ public abstract class EventersInitializer extends DatastoresInitializer {
      * <code>startEventers</code> all eventers have to be started before
      * anything else. This allows any part of the system to send events data
      * log or metric or whatever appropriately.
+     *
+     *
      */
     protected void startEventers() throws UnRetriableException {
 
@@ -51,9 +55,11 @@ public abstract class EventersInitializer extends DatastoresInitializer {
     }
 
 
-    protected void classifyBaseHandler(BaseSystemHandler baseSystemHandler) {
 
-        if (baseSystemHandler instanceof Eventer) {
+
+    protected void classifyBaseHandler(BaseSystemHandler baseSystemHandler){
+
+        if(baseSystemHandler instanceof Eventer) {
 
             log.debug(" classifyBaseHandler : found the eventer {}", baseSystemHandler);
             if (isEventEngineEnabled()) {
@@ -62,7 +68,7 @@ public abstract class EventersInitializer extends DatastoresInitializer {
             } else {
                 log.info(" classifyBaseHandler : eventer {} is disabled ", baseSystemHandler);
             }
-        } else
+        }else
             super.classifyBaseHandler(baseSystemHandler);
     }
 
@@ -84,12 +90,15 @@ public abstract class EventersInitializer extends DatastoresInitializer {
 
         boolean configEventsEnabled = configuration.getBoolean(CORE_CONFIG_ENGINE_EVENT_IS_ENABLED, CORE_CONFIG_ENGINE_EVENT_IS_ENABLED_DEFAULT_VALUE);
 
-        log.debug(" configure : Eventer function is configured to be enabled [{}]", configEventsEnabled);
+        log.debug(" configure : Eventer function is configured to be enabled [{}]", configEventsEnabled );
         setEventEngineEnabled(configEventsEnabled);
 
         super.configure(configuration);
 
     }
+
+
+
 
 
 }

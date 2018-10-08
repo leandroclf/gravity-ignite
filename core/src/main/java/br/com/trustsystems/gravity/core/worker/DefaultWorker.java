@@ -30,9 +30,10 @@ public class DefaultWorker extends Worker {
      * pick the settings it has registered on the configuration file for its particular use.
      *
      * @param configuration
+     * @throws UnRetriableException
      */
     @Override
-    public void configure(Configuration configuration) {
+    public void configure(Configuration configuration) throws UnRetriableException {
 
         boolean configAnnoymousLoginEnabled = configuration.getBoolean(CORE_CONFIG_WORKER_ANNONYMOUS_LOGIN_ENABLED, CORE_CONFIG_WORKER_ANNONYMOUS_LOGIN_ENABLED_DEFAULT_VALUE);
 
@@ -60,9 +61,11 @@ public class DefaultWorker extends Worker {
     /**
      * <code>initiate</code> starts the operations of this system handler.
      * All excecution code for the plugins is expected to begin at this point.
+     *
+     * @throws UnRetriableException
      */
     @Override
-    public void initiate() {
+    public void initiate() throws UnRetriableException {
 
         //Initiate the session reset manager.
         SessionResetManager sessionResetManager = new SessionResetManager();
@@ -73,6 +76,7 @@ public class DefaultWorker extends Worker {
 
         //Initiate unirest properties.
         Unirest.setTimeouts(5000, 5000);
+
 
 
     }
@@ -147,12 +151,12 @@ public class DefaultWorker extends Worker {
             case ConnectMessage.MESSAGE_TYPE:
 
                 ConnectMessage connectMessage = (ConnectMessage) iotMessage;
-                if (connectMessage.isAnnonymousSession() && isAnnonymousLoginEnabled()) {
+                if(connectMessage.isAnnonymousSession() && isAnnonymousLoginEnabled()){
                     connectMessage.setUserName(getAnnonymousLoginUsername());
                     connectMessage.setPassword(getAnnonymousLoginPassword());
                 }
 
-                if (connectMessage.getKeepAliveTime() <= 0) {
+                if(connectMessage.getKeepAliveTime() <= 0){
                     connectMessage.setKeepAliveTime(getKeepAliveInSeconds());
                 }
 
@@ -222,7 +226,8 @@ public class DefaultWorker extends Worker {
     }
 
 
-    private void postSessionCleanUp(Session session, boolean isExpiry) {
+
+    private void postSessionCleanUp(Session session, boolean isExpiry){
 
         PrincipalCollection principales = (PrincipalCollection) session.getAttribute(IOTSecurityManager.SESSION_PRINCIPLES_KEY);
         IdConstruct construct = (IdConstruct) principales.getPrimaryPrincipal();
@@ -234,7 +239,7 @@ public class DefaultWorker extends Worker {
 
         clientObservable.subscribe(client -> {
 
-            if (isExpiry) {
+            if(isExpiry){
                 log.debug(" postSessionCleanUp : ---------------- We are to publish a will man for {}", client);
                 publishWill(client);
             }
@@ -248,7 +253,7 @@ public class DefaultWorker extends Worker {
 
             // Unsubscribe all
 
-            if (client.isCleanSession()) {
+            if(client.isCleanSession()) {
                 Observable<Subscription> subscriptionObservable = getDatastore().getSubscriptions(client);
 
                 subscriptionObservable.subscribe(
@@ -262,7 +267,7 @@ public class DefaultWorker extends Worker {
                             Observable<PublishMessage> publishMessageObservable = getDatastore().getMessages(client);
                             publishMessageObservable.subscribe(
                                     getDatastore()::removeMessage,
-                                    throwable -> {
+                                    throwable ->{
                                         log.error(" postSessionCleanUp : problems while unsubscribing", throwable);
                                         // any way still delete it from our db
                                         getDatastore().removeClient(client);
@@ -274,13 +279,14 @@ public class DefaultWorker extends Worker {
 
                         }
                 );
-            } else {
+            }else{
                 //Mark the client as inactive
                 client.setActive(false);
                 client.setSessionId(null);
                 getDatastore().saveClient(client);
 
             }
+
 
 
         }, throwable -> log.error(" postSessionCleanUp : problems obtaining user for session {}", session));

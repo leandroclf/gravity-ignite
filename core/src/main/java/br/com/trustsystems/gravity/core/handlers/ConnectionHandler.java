@@ -8,6 +8,7 @@ import br.com.trustsystems.gravity.core.worker.state.messages.ConnectMessage;
 import br.com.trustsystems.gravity.core.worker.state.messages.WillMessage;
 import br.com.trustsystems.gravity.core.worker.state.messages.base.Protocol;
 import br.com.trustsystems.gravity.core.worker.state.models.Client;
+import br.com.trustsystems.gravity.exceptions.RetriableException;
 import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import br.com.trustsystems.gravity.security.IOTSecurityManager;
 import br.com.trustsystems.gravity.security.realm.auth.IdConstruct;
@@ -38,7 +39,7 @@ public class ConnectionHandler extends RequestHandler<ConnectMessage> {
     private final Pattern usernamePartitionPattern = Pattern.compile("(?<username>.*)-<(?<partition>.*)>");
     private final Pattern pattern = Pattern.compile("[\\w\\-\\s/<>]*");
 
-
+   
     public ConnectionHandler(ConnectMessage message) {
         super(message);
     }
@@ -84,10 +85,11 @@ public class ConnectionHandler extends RequestHandler<ConnectMessage> {
      * Server will not be processed if the Server rejects the connection.
      *
      * @return
+     * @throws RetriableException
      * @throws UnRetriableException
      */
     @Override
-    public void handle() throws UnRetriableException {
+    public void handle() throws RetriableException, UnRetriableException {
 
 
         log.debug(" handle : client initiating a new connection.");
@@ -107,7 +109,7 @@ public class ConnectionHandler extends RequestHandler<ConnectMessage> {
 
             if (!MqttVersion.MQTT_3_1_1.protocolName().equals(getMessage().getProtocolName())
                     && !MqttVersion.MQTT_3_1.protocolName().equals(getMessage().getProtocolName())
-            ) {
+                    ) {
 
                 /**
                  * If the protocol name is incorrect the Server MAY disconnect the Client,
@@ -124,7 +126,7 @@ public class ConnectionHandler extends RequestHandler<ConnectMessage> {
 
             if (MqttVersion.MQTT_3_1_1.protocolLevel() != getMessage().getProtocalLevel()
                     && MqttVersion.MQTT_3_1.protocolLevel() != getMessage().getProtocalLevel()
-            ) {
+                    ) {
 
                 /**
                  * The 8 bit unsigned value that represents the revision level of the protocol used by the Client.
@@ -334,8 +336,8 @@ public class ConnectionHandler extends RequestHandler<ConnectMessage> {
                 final String activeClientId;
                 if (null == clientIdentifier) {
                     activeClientId = worker.getDatastore().nextClientId();
-                } else {
-                    activeClientId = clientIdentifier;
+                }else{
+                    activeClientId  = clientIdentifier;
                 }
 
                 final String partition = processUsernameForPartition(userName);
@@ -353,75 +355,76 @@ public class ConnectionHandler extends RequestHandler<ConnectMessage> {
                 log.debug(" openSubject : create -- Futher into the database.");
 
                 Observable<Client> clientObservable = getDatastore().getClient(partition, activeClientId);
-                clientObservable.firstOrDefault(defaultClient).subscribe((client) -> {
+                clientObservable.firstOrDefault(defaultClient).subscribe(( client) ->{
 
-                            //We have obtained a client to work with.
+                        //We have obtained a client to work with.
 
-                            log.debug(" openSubject : create -- We obtained a client.");
+                        log.debug(" openSubject : create -- We obtained a client.");
 
-                            try {
+                        try {
 
-                                IdConstruct idConstruct = new IdConstruct(partition, userName, activeClientId);
-                                PrincipalCollection principals = new SimplePrincipalCollection(idConstruct, "");
+                            IdConstruct idConstruct = new IdConstruct(partition, userName, activeClientId);
+                            PrincipalCollection principals = new SimplePrincipalCollection(idConstruct, "");
 
-                                Subject.Builder subjectBuilder = new Subject.Builder();
-                                subjectBuilder = subjectBuilder.principals(principals);
-                                subjectBuilder = subjectBuilder.host(sourceHost);
-                                subjectBuilder = subjectBuilder.sessionCreationEnabled(true);
-                                subjectBuilder = subjectBuilder.sessionId(client.getSessionId());
-                                Subject activeUser = subjectBuilder.buildSubject();
+                            Subject.Builder subjectBuilder = new Subject.Builder();
+                            subjectBuilder = subjectBuilder.principals(principals);
+                            subjectBuilder = subjectBuilder.host(sourceHost);
+                            subjectBuilder = subjectBuilder.sessionCreationEnabled(true);
+                            subjectBuilder = subjectBuilder.sessionId(client.getSessionId());
+                            Subject activeUser = subjectBuilder.buildSubject();
 
-                                if (activeUser.isAuthenticated() && cleanSession) {
-                                    //Clean a logged in session.
-                                    activeUser.logout();
-                                }
-
-                                char[] passwordChars;
-
-                                if (null == password)
-                                    passwordChars = null;
-                                else
-                                    passwordChars = password.toCharArray();
-
-
-                                IdPassToken token = new IdPassToken(partition, userName, activeClientId, passwordChars);
-
-
-                                activeUser.login(token);
-
-                                Double keepAliveDisconnectiontime = keepAliveTime * 1.5 * 1000;
-
-
-                                log.info(" openSubject : Authenticated client <{}> username {} with keep alive of {} seconds", client.getClientId(), userName, keepAliveDisconnectiontime);
-
-                                Session session = activeUser.getSession();
-                                session.setTimeout(keepAliveDisconnectiontime.longValue());
-                                session.setAttribute(IOTSecurityManager.SESSION_PRINCIPLES_KEY, principals);
-
-                                if (client.getProtocal().isNotPersistent()) {
-                                    String sessionAuthKey = generateMAC();
-                                    session.setAttribute(SESSION_AUTH_KEY, sessionAuthKey);
-                                    getMessage().setAuthKey(sessionAuthKey);
-                                }
-
-
-                                session.touch();
-
-                                client.setProtocal(protocal);
-                                client.setActive(true);
-                                client.setCleanSession(cleanSession);
-                                client.setSessionId(session.getId());
-                                client.setConnectionId(connectionID);
-
-                                getDatastore().saveClient(client);
-
-                                observable.onNext(client);
-                                observable.onCompleted();
-
-                            } catch (NoSuchAlgorithmException | AuthenticationException e) {
-                                observable.onError(e);
+                            if (activeUser.isAuthenticated() && cleanSession) {
+                                //Clean a logged in session.
+                                activeUser.logout();
                             }
-                        }, observable::onError
+
+                            char[] passwordChars;
+
+                            if( null == password)
+                                passwordChars = null;
+                            else
+                                passwordChars = password.toCharArray();
+
+
+                            IdPassToken token = new IdPassToken(partition, userName, activeClientId, passwordChars);
+
+
+                            activeUser.login(token);
+
+                            Double keepAliveDisconnectiontime = keepAliveTime * 1.5 * 1000;
+
+
+                            log.info(" openSubject : Authenticated client <{}> username {} with keep alive of {} seconds", client.getClientId(), userName, keepAliveDisconnectiontime);
+
+                            Session session = activeUser.getSession();
+                            session.setTimeout(keepAliveDisconnectiontime.longValue());
+                            session.setAttribute(IOTSecurityManager.SESSION_PRINCIPLES_KEY, principals);
+
+                            if (client.getProtocal().isNotPersistent()) {
+                                String sessionAuthKey = generateMAC();
+                                session.setAttribute(SESSION_AUTH_KEY, sessionAuthKey);
+                                getMessage().setAuthKey(sessionAuthKey);
+                            }
+
+
+
+                            session.touch();
+
+                            client.setProtocal(protocal);
+                            client.setActive(true);
+                            client.setCleanSession(cleanSession);
+                            client.setSessionId(session.getId());
+                            client.setConnectionId(connectionID);
+
+                            getDatastore().saveClient(client);
+
+                            observable.onNext(client);
+                            observable.onCompleted();
+
+                        } catch (NoSuchAlgorithmException | AuthenticationException  e) {
+                            observable.onError(e);
+                        }
+                    }, observable::onError
                 );
 
 

@@ -9,19 +9,19 @@ public final class ReleaseMessage extends IOTMessage {
     private final boolean dup;
     private final int qos = 1;
 
+    public static ReleaseMessage from(long messageId, boolean dup) {
+        if (messageId < 1 ) {
+            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
+        }
+        return new ReleaseMessage(messageId, dup);
+    }
+
     private ReleaseMessage(long messageId, boolean dup) {
 
         setMessageType(MESSAGE_TYPE);
         setMessageId(messageId);
         this.dup = dup;
 
-    }
-
-    public static ReleaseMessage from(long messageId, boolean dup) {
-        if (messageId < 1) {
-            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
-        }
-        return new ReleaseMessage(messageId, dup);
     }
 
     public boolean isDup() {

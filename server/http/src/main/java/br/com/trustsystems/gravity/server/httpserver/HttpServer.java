@@ -77,7 +77,7 @@ public class HttpServer extends Server<FullHttpMessage> {
     @Override
     public void onNext(IOTMessage ioTMessage) {
 
-        if (null == ioTMessage || !Protocol.HTTP.equals(ioTMessage.getProtocol())) {
+        if(null == ioTMessage || !Protocol.HTTP.equals(ioTMessage.getProtocol())){
             return;
         }
 
@@ -86,9 +86,9 @@ public class HttpServer extends Server<FullHttpMessage> {
 
         FullHttpMessage mqttMessage = toServerMessage(ioTMessage);
 
-        if (null == mqttMessage) {
+        if(null == mqttMessage){
             log.debug(" HttpServer onNext : ignoring outbound message {}", ioTMessage);
-        } else {
+        }else {
             serverImpl.pushToClient(ioTMessage.getConnectionId(), mqttMessage);
         }
         serverImpl.postProcess(ioTMessage);
@@ -97,8 +97,8 @@ public class HttpServer extends Server<FullHttpMessage> {
 
     @Override
     protected IOTMessage toIOTMessage(FullHttpMessage serverMessage) {
-        return httpIOTTransformer.toIOTMessage(serverMessage);
-    }
+       return httpIOTTransformer.toIOTMessage(serverMessage);
+   }
 
 
     @Override

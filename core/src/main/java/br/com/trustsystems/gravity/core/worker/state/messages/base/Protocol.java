@@ -6,15 +6,15 @@ public enum Protocol {
 
     private final boolean persistent;
 
-    Protocol(boolean persistent) {
+    Protocol(boolean persistent){
         this.persistent = persistent;
     }
 
-    public boolean isPersistent() {
+    public boolean isPersistent(){
         return persistent;
     }
 
-    public boolean isNotPersistent() {
+    public boolean isNotPersistent(){
         return !persistent;
     }
 }

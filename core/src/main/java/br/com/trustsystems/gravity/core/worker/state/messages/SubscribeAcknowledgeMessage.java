@@ -9,9 +9,17 @@ public final class SubscribeAcknowledgeMessage extends IOTMessage {
     public static final String MESSAGE_TYPE = "SUBACK";
 
     private final boolean dup;
-    private final int qos = 0;
+    private final int qos =0;
     private final boolean retain;
     private final List<Integer> grantedQos;
+
+    public static SubscribeAcknowledgeMessage from(long messageId, List<Integer> grantedQos) {
+        if (messageId < 1 ) {
+            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
+        }
+
+        return new SubscribeAcknowledgeMessage( messageId, false, false, grantedQos);
+    }
 
     private SubscribeAcknowledgeMessage(long messageId, boolean dup, boolean retain, List<Integer> grantedQos) {
 
@@ -21,14 +29,6 @@ public final class SubscribeAcknowledgeMessage extends IOTMessage {
         this.retain = retain;
         this.grantedQos = grantedQos;
 
-    }
-
-    public static SubscribeAcknowledgeMessage from(long messageId, List<Integer> grantedQos) {
-        if (messageId < 1) {
-            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
-        }
-
-        return new SubscribeAcknowledgeMessage(messageId, false, false, grantedQos);
     }
 
     public boolean isDup() {

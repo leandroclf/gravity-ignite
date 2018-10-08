@@ -18,11 +18,11 @@ import java.util.UUID;
 
 public class Client implements IdKeyComposer, Serializable {
 
-    @QuerySqlField(orderedGroups = {@QuerySqlField.Group(
+    @QuerySqlField(orderedGroups={@QuerySqlField.Group(
             name = "partition_clientid_idx", order = 0)})
     private String partition;
 
-    @QuerySqlField(orderedGroups = {@QuerySqlField.Group(
+    @QuerySqlField(orderedGroups={@QuerySqlField.Group(
             name = "partition_clientid_idx", order = 2)})
     private String clientId;
 
@@ -143,9 +143,9 @@ public class Client implements IdKeyComposer, Serializable {
 
 
     @Override
-    public Serializable generateIdKey() throws UnRetriableException {
+    public Serializable generateIdKey() throws UnRetriableException{
 
-        if (null == getClientId()) {
+        if(null == getClientId()){
             throw new UnRetriableException(" Client Id has to be non null");
         }
 
@@ -160,11 +160,12 @@ public class Client implements IdKeyComposer, Serializable {
         iotMessage.setNodeId(getConnectedNode());
         iotMessage.setCluster(getConnectedCluster());
 
-        if (iotMessage instanceof PublishMessage) {
+        if(iotMessage instanceof PublishMessage) {
             PublishMessage publishMessage = (PublishMessage) iotMessage;
             publishMessage.setPartition(getPartition());
             publishMessage.setClientId(getClientId());
         }
+
 
 
         return iotMessage;

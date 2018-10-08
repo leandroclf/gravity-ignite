@@ -33,13 +33,15 @@ import java.util.stream.Collectors;
 
 public abstract class RequestHandler<T extends IOTMessage> {
 
-    protected static final String SESSION_AUTH_KEY = "auth_key";
     protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    protected static final String SESSION_AUTH_KEY = "auth_key";
+
     private final T message;
 
     private Worker worker;
 
-    public RequestHandler(T message) {
+    public RequestHandler(T message){
         this.message = message;
     }
 
@@ -55,12 +57,12 @@ public abstract class RequestHandler<T extends IOTMessage> {
         this.worker = worker;
     }
 
-    public Datastore getDatastore() {
+    public Datastore getDatastore(){
         return getWorker().getDatastore();
     }
 
-    public Messenger getMessenger() {
-        return getWorker().getMessenger();
+    public Messenger getMessenger(){
+        return  getWorker().getMessenger();
     }
 
     private IOTPermission getPermission(String partition, String username, String clientId, AuthorityRole role, String topic) {
@@ -71,27 +73,26 @@ public abstract class RequestHandler<T extends IOTMessage> {
         return new IOTPermission(partition, username, clientId, permissionString);
     }
 
-    public Observable<Client> checkPermission(Serializable sessionId, String authKey, AuthorityRole role, String... topicList) {
+    public Observable<Client> checkPermission(Serializable sessionId, String authKey, AuthorityRole role, String ... topicList) {
         return checkPermission(sessionId, authKey, role, Arrays.asList(topicList));
 
     }
+    public Observable<Client> checkPermission(Serializable sessionId, String authKey, AuthorityRole role, List<String>  topicList) {
 
-    public Observable<Client> checkPermission(Serializable sessionId, String authKey, AuthorityRole role, List<String> topicList) {
-
-        return Observable.create(observable -> {
+        return Observable.create(observable ->{
 
             Subject subject = new Subject.Builder().sessionId(sessionId).buildSubject();
 
             final Session session = subject.getSession(false);
 
-            if (session != null && subject.isAuthenticated()) {
+            if (session != null && subject.isAuthenticated() ) {
 
 
-                try {
+                try{
 
 
-                    PrincipalCollection principales = (PrincipalCollection) session.getAttribute(IOTSecurityManager.SESSION_PRINCIPLES_KEY);
-                    IdConstruct construct = (IdConstruct) principales.getPrimaryPrincipal();
+                PrincipalCollection principales = (PrincipalCollection) session.getAttribute(IOTSecurityManager.SESSION_PRINCIPLES_KEY);
+                IdConstruct construct = (IdConstruct) principales.getPrimaryPrincipal();
 
                     String partition = construct.getPartition();
                     String username = construct.getUsername();
@@ -101,19 +102,20 @@ public abstract class RequestHandler<T extends IOTMessage> {
                     String session_auth_key = (String) session.getAttribute(SESSION_AUTH_KEY);
 
 
-                    /**
-                     * Make sure for non persistent connections the authKey matches
-                     * the stored authKey. Otherwise fail the request.
-                     */
-                    if (!StringUtils.isEmpty(session_auth_key)) {
-                        if (!session_auth_key.equals(authKey))
-                            throw new UnauthenticatedException("Client fails auth key assertion.");
 
-                    }
+                /**
+                 * Make sure for non persistent connections the authKey matches
+                 * the stored authKey. Otherwise fail the request.
+                 */
+                if(!StringUtils.isEmpty(session_auth_key)){
+                    if(!session_auth_key.equals(authKey))
+                        throw new UnauthenticatedException("Client fails auth key assertion.");
 
-                    if (AuthorityRole.CONNECT.equals(role)) {
+                }
+
+                    if(AuthorityRole.CONNECT.equals(role)){
                         //No need to check for this permission.
-                    } else {
+                    }else {
 
                         List<Permission> permissions = topicList
                                 .stream()
@@ -136,13 +138,13 @@ public abstract class RequestHandler<T extends IOTMessage> {
                     clientObservable.subscribe(observable::onNext, observable::onError, observable::onCompleted);
 
 
-                } catch (AuthorizationException e) {
+                }catch (AuthorizationException e) {
                     //Notify failure to authorize user.
                     observable.onError(e);
                 }
 
-            } else {
-                observable.onError(new AuthenticationException("Client must be authenticated {Try connecting first} found : " + session));
+            }else{
+                observable.onError(new AuthenticationException("Client must be authenticated {Try connecting first} found : "+ session));
             }
 
         });
@@ -150,7 +152,7 @@ public abstract class RequestHandler<T extends IOTMessage> {
     }
 
 
-    public void disconnectDueToError(Throwable e) {
+    public void disconnectDueToError(Throwable e){
         log.warn(" disconnectDueToError : System experienced the error ", e);
 
         //Notify the server to remove this client from further sending in requests.
@@ -168,15 +170,13 @@ public abstract class RequestHandler<T extends IOTMessage> {
 
 
     }
-
     /**
      * Wrapper method to assist in pushing/routing requests to the client.
      * It provides convenience to access the active worker and push
      * out the available messages to the connected client.
-     *
      * @param iotMessage
      */
-    public void pushToServer(IOTMessage iotMessage) {
+    public void pushToServer(IOTMessage iotMessage){
 
 
         getWorker().pushToServer(iotMessage);

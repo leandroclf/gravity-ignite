@@ -13,9 +13,17 @@ public final class SubscribeMessage extends IOTMessage {
     private final boolean dup;
     private final int qos;
     private final boolean retain;
-    private final List<Map.Entry<String, Integer>> topicFilterList = new ArrayList<>();
     private String receptionUrl;
 
+    private final List<Map.Entry<String,Integer>> topicFilterList = new ArrayList<>();
+
+
+    public static SubscribeMessage from(long messageId, boolean dup, int qos, boolean retain) {
+        if (messageId < 1 ) {
+            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
+        }
+        return new SubscribeMessage(messageId, dup, qos, retain);
+    }
 
     private SubscribeMessage(long messageId, boolean dup, int qos, boolean retain) {
 
@@ -25,13 +33,6 @@ public final class SubscribeMessage extends IOTMessage {
         this.qos = qos;
         this.retain = retain;
 
-    }
-
-    public static SubscribeMessage from(long messageId, boolean dup, int qos, boolean retain) {
-        if (messageId < 1) {
-            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
-        }
-        return new SubscribeMessage(messageId, dup, qos, retain);
     }
 
     public boolean isDup() {
@@ -47,7 +48,8 @@ public final class SubscribeMessage extends IOTMessage {
     }
 
 
-    public List<Map.Entry<String, Integer>> getTopicFilterList() {
+
+    public List<Map.Entry<String,Integer>> getTopicFilterList() {
         return topicFilterList;
     }
 

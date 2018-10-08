@@ -48,7 +48,7 @@ public class IOTMqttTransformerImpl implements IOTMqttTransformer<MqttMessage> {
 
                 //We need to generate a PUBREL message to release cached message.
                 ReleaseMessage pubrel = (ReleaseMessage) internalMessage;
-                MqttFixedHeader relFixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, pubrel.isDup(), MqttQoS.valueOf(pubrel.getQos()), false, 0);
+                MqttFixedHeader relFixedHeader = new MqttFixedHeader(MqttMessageType.PUBREL, pubrel.isDup(), MqttQoS.valueOf(pubrel.getQos()),false, 0);
                 msgIdVariableHeader = MqttMessageIdVariableHeader.from(pubrel.getMessageId().intValue());
                 return MqttMessageFactory.newMessage(relFixedHeader, msgIdVariableHeader, null);
 

@@ -14,12 +14,16 @@ import java.util.UUID;
 public class DefaultServerRouter implements ServerRouter, IgniteBiPredicate<UUID, IOTMessage> {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultServerRouter.class);
-    private final IgniteMessaging messaging;
-    private final String cluster;
-    private final UUID nodeId;
+
     private List<Subscriber> subscriberList = new ArrayList<>();
 
-    public DefaultServerRouter(String cluster, UUID nodeId, IgniteMessaging messaging) {
+    private  final IgniteMessaging messaging;
+
+    private final String cluster;
+
+    private final UUID nodeId;
+
+    public DefaultServerRouter(String cluster, UUID nodeId, IgniteMessaging messaging){
         this.cluster = cluster;
         this.nodeId = nodeId;
         this.messaging = messaging;
@@ -55,12 +59,13 @@ public class DefaultServerRouter implements ServerRouter, IgniteBiPredicate<UUID
     public void route(String cluster, UUID nodeId, IOTMessage message) {
 
 
-        log.debug(" route : routing the message to {} in cluster {}", nodeId, cluster);
-        getMessaging().send(getNodeTopic(cluster, nodeId), message);
+
+        log.debug(" route : routing the message to {} in cluster {}", nodeId, cluster );
+        getMessaging().send(getNodeTopic(cluster, nodeId), message );
     }
 
 
-    private String getNodeTopic(String cluster, UUID nodeId) {
+    private String getNodeTopic(String cluster, UUID nodeId){
         return String.format("%s-%s", cluster, nodeId);
     }
 

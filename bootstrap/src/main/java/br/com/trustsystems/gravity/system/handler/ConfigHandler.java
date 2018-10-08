@@ -10,9 +10,10 @@ public interface ConfigHandler {
 
     String SYSTEM_CONFIG_CONFIGURATION_FILE_NAME_DEFAULT_VALUE = "gravity.properties";
 
-    String DEFAULT_CONFIG_DIRECTORY = ".." + File.separator + "conf";
+    String DEFAULT_CONFIG_DIRECTORY = ".."+ File.separator+"conf";
 
     /**
+     *
      * All system configurations providers are loaded via spi
      * and are given the configurations the system already has.
      * They are further expected to provide their configurations in

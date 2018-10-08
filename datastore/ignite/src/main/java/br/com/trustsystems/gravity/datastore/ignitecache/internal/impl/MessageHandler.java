@@ -32,10 +32,10 @@ public class MessageHandler extends AbstractHandler<PublishMessage> {
     public void initializeSequence(String nameOfSequence, Ignite ignite) {
 
         String queryForCount = "SELECT MAX(id) FROM PublishMessage";
-        Object[] params = {};
+        Object[] params = { };
 
         Long currentMax = getByQueryAsValue(Long.class, queryForCount, params).toBlocking().single();
-        if (null == currentMax) {
+        if(null == currentMax){
             currentMax = 0l;
         }
 
@@ -47,25 +47,26 @@ public class MessageHandler extends AbstractHandler<PublishMessage> {
 
         try {
 
-            if (publishMessage.getId() <= 0) {
+            if(publishMessage.getId() <= 0){
                 publishMessage.setId(nextId());
             }
 
             getDatastoreCache().put(publishMessage.generateIdKey(), publishMessage);
 
-            if (PublishMessage.ID_TO_FORCE_GENERATION_ON_SAVE == publishMessage.getMessageId()) {
+            if(PublishMessage.ID_TO_FORCE_GENERATION_ON_SAVE == publishMessage.getMessageId()){
 
 
-                long messageId = getPartitionClientMessageId(
-                        publishMessage.getPartition(),
-                        publishMessage.getClientId(),
-                        publishMessage.isInBound(),
-                        publishMessage.getId()
-                );
+
+                    long messageId = getPartitionClientMessageId(
+                            publishMessage.getPartition(),
+                            publishMessage.getClientId(),
+                            publishMessage.isInBound(),
+                            publishMessage.getId()
+                    );
 
                 //Implement max check.
 
-                publishMessage.setMessageId(messageId);
+                    publishMessage.setMessageId(messageId);
 
                 getDatastoreCache().put(publishMessage.generateIdKey(), publishMessage);
 
@@ -86,16 +87,16 @@ public class MessageHandler extends AbstractHandler<PublishMessage> {
 
     }
 
-    private long getPartitionClientMessageId(String partition, String clientId, boolean isInBound, long id) {
+    private long getPartitionClientMessageId(String partition, String clientId, boolean isInBound, long id){
 
         String queryForCount = "SELECT " +
                 "(SELECT MAX(messageId) FROM PublishMessage WHERE partition = ? AND clientId = ? AND messageId > ? AND inBound = ? AND id < ? ) " +
                 "+ (SELECT COUNT(id) FROM PublishMessage WHERE partition = ? AND clientId = ? AND messageId <= ? AND inBound = ? AND id <= ? ) " +
                 " AS newId";
-        Object[] params = {partition, clientId, 0, isInBound, id, partition, clientId, 0, isInBound, id};
+        Object[] params = { partition, clientId, 0, isInBound, id, partition, clientId, 0, isInBound, id };
 
         Long currentMax = getByQueryAsValue(Long.class, queryForCount, params).toBlocking().single();
-        if (null == currentMax) {
+        if(null == currentMax){
             currentMax = 1l;
         }
 

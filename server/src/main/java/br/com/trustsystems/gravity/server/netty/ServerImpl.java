@@ -25,29 +25,33 @@ import java.io.Serializable;
 
 public abstract class ServerImpl<T> implements ServerInterface<T> {
 
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final Server<T> internalServer;
+
     public static final AttributeKey<Serializable> REQUEST_SESSION_ID = AttributeKey.valueOf("requestSessionIdKey");
     public static final AttributeKey<Serializable> REQUEST_CONNECTION_ID = AttributeKey.valueOf("requestConnectionIdKey");
-    protected final Logger log = LoggerFactory.getLogger(getClass());
-    private final Server<T> internalServer;
-    private final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+
+
     private int tcpPort;
     private int sslPort;
     private boolean sslEnabled;
     private int connectionTimeout;
+
     private SSLHandler sslHandler = null;
+
     private EventLoopGroup parentGroup = null;
     private EventLoopGroup childGroup = null;
+
     private Channel tcpChannel = null;
     private Channel sslChannel = null;
 
-    public ServerImpl(Server<T> internalServer) {
-
-        this.internalServer = internalServer;
-    }
+    private final ChannelGroup channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
     public ChannelGroup getChannelGroup() {
         return channelGroup;
     }
+
 
     public int getTcpPort() {
         return tcpPort;
@@ -87,6 +91,12 @@ public abstract class ServerImpl<T> implements ServerInterface<T> {
 
     public void setSslHandler(SSLHandler sslHandler) {
         this.sslHandler = sslHandler;
+    }
+
+
+    public ServerImpl(Server<T> internalServer) {
+
+        this.internalServer = internalServer;
     }
 
     public Server<T> getInternalServer() {

@@ -8,20 +8,20 @@ public interface Runner {
     /**
      * Initializes this instance.
      * <p>
-     * This method should be called once the JVM process is created and the
-     * <code>Runner</code> instance is created thru its empty public
-     * constructor.
+     *   This method should be called once the JVM process is created and the
+     *   <code>Runner</code> instance is created thru its empty public
+     *   constructor.
      * </p>
      * <p>
-     * Apart from set up and allocation of native resources, this method
-     * does not start actual operation of <code>Runner</code> (such
-     * as starting threads.) as it would impose serious security hazards. The
-     * start of operation must be performed in the <code>start()</code>
-     * method.
+     *   Apart from set up and allocation of native resources, this method
+     *   does not start actual operation of <code>Runner</code> (such
+     *   as starting threads.) as it would impose serious security hazards. The
+     *   start of operation must be performed in the <code>start()</code>
+     *   method.
      * </p>
      *
-     * @throws UnRetriableException Any exception preventing a successful
-     *                              initialization.
+     * @exception UnRetriableException Any exception preventing a successful
+     *                      initialization.
      */
     void init() throws UnRetriableException;
 
@@ -37,6 +37,7 @@ public interface Runner {
     void start() throws UnRetriableException;
 
     /**
+     *
      * Stops the operation of this instance and immediately
      * frees any resources allocated by this daemon such as file
      * descriptors or sockets. This method gets called by the container

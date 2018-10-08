@@ -19,23 +19,23 @@ public class ResourceFileUtil {
 
             File file = new File(resource);
 
-            if (file.exists()) {
+            if(file.exists()){
                 return file;
             }
 
-            URL res = classInPackage.getResource("/" + resource);
+            URL res = classInPackage.getResource("/"+resource);
 
-            if (null == res) {
-                throw new UnRetriableException("The file [" + resource + "] was not located within the system.");
+            if(null == res){
+                throw new UnRetriableException("The file ["+resource+"] was not located within the system.");
             }
 
 
             if (res.toString().startsWith("jar:")) {
-                InputStream input = classInPackage.getResourceAsStream("/" + resource);
+                InputStream input = classInPackage.getResourceAsStream("/"+resource);
 
                 Files.copy(input, file.toPath());
-            } else {
-                Files.copy(Paths.get(res.getFile()), file.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+            }else {
+               Files.copy(Paths.get(res.getFile()), file.toPath(), StandardCopyOption.COPY_ATTRIBUTES );
             }
             return file;
 

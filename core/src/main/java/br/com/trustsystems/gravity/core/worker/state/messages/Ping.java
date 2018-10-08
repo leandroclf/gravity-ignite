@@ -10,7 +10,7 @@ public final class Ping extends IOTMessage {
     private final int qos;
     private final boolean retain;
 
-    private Ping(boolean dup, int qos, boolean retain) {
+    private Ping( boolean dup, int qos,  boolean retain) {
 
         setMessageType(MESSAGE_TYPE);
         this.dup = dup;
@@ -19,9 +19,9 @@ public final class Ping extends IOTMessage {
 
     }
 
-    public static Ping from(boolean dup, int qos, boolean retain) {
+    public static Ping from( boolean dup, int qos, boolean retain) {
 
-        return new Ping(dup, qos, retain);
+        return new Ping( dup, qos, retain);
     }
 
     public boolean isDup() {

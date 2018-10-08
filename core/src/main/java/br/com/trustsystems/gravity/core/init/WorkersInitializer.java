@@ -24,6 +24,7 @@ public abstract class WorkersInitializer extends ServersInitializer {
     private String annonymousLoginPassword;
 
 
+
     private List<Worker> workerList = new ArrayList<>();
 
     public boolean isWorkerEngineEnabled() {
@@ -63,15 +64,17 @@ public abstract class WorkersInitializer extends ServersInitializer {
     }
 
 
+
+
     /**
      * <code>startWorkers</code> Any kind of worker can be loaded on to the system.
      * This can allow for the same request to be processed in two different ways.
      * How that is usefull now is left to the person actually executing such an implementation
      * The design leaves room for creativity upto the core of IOTracah.
-     * <p>
+     *
      * Beyond multiple workers, normall operations of the system would be expected to be with
      * the default workers only. This way a true mqtt broker is allowed to be built.
-     * <p>
+     *
      * The workers expect to be pushed data from servers they handle it appropriately producing
      * all the relevant events then they return a response by pushing it to the server layer.
      *
@@ -79,7 +82,7 @@ public abstract class WorkersInitializer extends ServersInitializer {
      */
     public void startWorkers() throws UnRetriableException {
 
-        if (isWorkerEngineEnabled() && getWorkerList().isEmpty()) {
+        if(isWorkerEngineEnabled() && getWorkerList().isEmpty()) {
             log.warn("List of worker plugins is empty");
             throw new UnRetriableException(" System expects atleast one worker plugin to be configured.");
         }
@@ -104,19 +107,20 @@ public abstract class WorkersInitializer extends ServersInitializer {
         }
     }
 
-    protected void classifyBaseHandler(BaseSystemHandler baseSystemHandler) {
+    protected void classifyBaseHandler(BaseSystemHandler baseSystemHandler){
 
-        if (baseSystemHandler instanceof Worker) {
+        if(baseSystemHandler instanceof Worker){
 
             log.debug(" classifyBaseHandler : found the worker {}", baseSystemHandler);
 
-            if (isWorkerEngineEnabled()) {
+            if(isWorkerEngineEnabled()){
                 log.info(" classifyBaseHandler : storing the worker : {} for use as active plugin", baseSystemHandler);
-                workerList.add((Worker) baseSystemHandler);
+            workerList.add((Worker) baseSystemHandler);
             } else {
                 log.info(" classifyBaseHandler : worker {} is disabled ", baseSystemHandler);
             }
-        } else {
+        }
+        else{
             super.classifyBaseHandler(baseSystemHandler);
         }
     }
@@ -144,9 +148,12 @@ public abstract class WorkersInitializer extends ServersInitializer {
         setWorkerEngineEnabled(configWorkerEnabled);
 
 
+
+
         super.configure(configuration);
 
     }
+
 
 
 }

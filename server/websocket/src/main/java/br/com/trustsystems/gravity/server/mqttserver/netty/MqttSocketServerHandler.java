@@ -21,9 +21,10 @@ public class MqttSocketServerHandler extends ServerHandler<MqttMessage> {
      * @param ctx the {@link ChannelHandlerContext} which this {@link SimpleChannelInboundHandler}
      *            belongs to
      * @param msg the message to handle
+     * @throws Exception is thrown if an error occurred
      */
     @Override
-    protected void messageReceived(ChannelHandlerContext ctx, MqttMessage msg) {
+    protected void messageReceived(ChannelHandlerContext ctx, MqttMessage msg) throws Exception {
 
         log.debug(" messageReceived : received the message {}", msg);
 
@@ -36,16 +37,17 @@ public class MqttSocketServerHandler extends ServerHandler<MqttMessage> {
 
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 
         try {
-            log.info(" exceptionCaught : Unhandled exception: ", cause);
+            log.info(" exceptionCaught : Unhandled exception: " , cause);
 
             getServerImpl().closeClient(ctx.channel().id());
 
         } catch (Exception ex) {
             log.debug(" exceptionCaught : trying to close socket because we got an unhandled exception", ex);
         }
+
 
 
     }

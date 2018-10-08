@@ -20,25 +20,26 @@ public class DefaultLogHandler implements LogHandler {
     public void configure(Configuration configuration) throws UnRetriableException {
 
 
-        String logsConfigFile = SYSTEM_CONFIG_LOGGING_LOG_CONFIG_FILE_DEFAULT_VALUE;
-        String logsConfigDirectory = System.getProperty("gravity.default.path.conf", DEFAULT_CONFIG_DIRECTORY);
 
-        if (null != configuration) {
-            logsConfigFile = configuration.getString(SYSTEM_CONFIG_LOGGING_LOG_CONFIG_FILE, SYSTEM_CONFIG_LOGGING_LOG_CONFIG_FILE_DEFAULT_VALUE);
-            logsConfigDirectory = configuration.getString(SYSTEM_CONFIG_LOGGING_LOG_CONFIG_DIRECTORY, logsConfigDirectory);
-        }
+            String logsConfigFile = SYSTEM_CONFIG_LOGGING_LOG_CONFIG_FILE_DEFAULT_VALUE;
+            String logsConfigDirectory = System.getProperty("gravity.default.path.conf", DEFAULT_CONFIG_DIRECTORY);
 
-        String logsConfigFilePath = logsConfigDirectory + File.separator + logsConfigFile;
+            if (null != configuration) {
+                logsConfigFile = configuration.getString(SYSTEM_CONFIG_LOGGING_LOG_CONFIG_FILE, SYSTEM_CONFIG_LOGGING_LOG_CONFIG_FILE_DEFAULT_VALUE);
+                logsConfigDirectory = configuration.getString(SYSTEM_CONFIG_LOGGING_LOG_CONFIG_DIRECTORY, logsConfigDirectory);
+            }
+
+            String logsConfigFilePath = logsConfigDirectory + File.separator + logsConfigFile;
 
         log.debug(" configure : path to logging configs is {} .", logsConfigFilePath);
 
         File logConfigurationFile = new File(logsConfigFilePath);
 
-        if (!logConfigurationFile.exists()) {
+            if (!logConfigurationFile.exists()) {
 
-            logConfigurationFile = ResourceFileUtil.getFileFromResource(getClass(), logsConfigFile);
+                logConfigurationFile = ResourceFileUtil.getFileFromResource(getClass(), logsConfigFile);
 
-        }
+            }
 
         log.debug(" configure : File with logging configs is {} .", logConfigurationFile);
 
@@ -46,6 +47,8 @@ public class DefaultLogHandler implements LogHandler {
         PropertyConfigurator.configure(logConfigurationFile.getAbsolutePath());
 
     }
+
+
 
 
 }

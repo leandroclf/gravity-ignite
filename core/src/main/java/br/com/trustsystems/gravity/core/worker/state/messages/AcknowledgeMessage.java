@@ -10,18 +10,18 @@ public final class AcknowledgeMessage extends IOTMessage {
     private final int qos = 0;
     private final boolean retain = false;
 
+    public static AcknowledgeMessage from(long messageId) {
+        if (messageId < 1 ) {
+            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
+        }
+        return new AcknowledgeMessage(messageId);
+    }
+
     private AcknowledgeMessage(long messageId) {
 
         setMessageId(messageId);
         setMessageType(MESSAGE_TYPE);
 
-    }
-
-    public static AcknowledgeMessage from(long messageId) {
-        if (messageId < 1) {
-            throw new IllegalArgumentException("messageId: " + messageId + " (expected: > 1)");
-        }
-        return new AcknowledgeMessage(messageId);
     }
 
     public boolean isDup() {

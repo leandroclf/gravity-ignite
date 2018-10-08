@@ -29,10 +29,6 @@ public class IOTRole implements IdKeyComposer, Serializable {
         setPermissions(permissions);
     }
 
-    public static String createCacheKey(String partition, String rolename) {
-        return String.format("%s-%s", partition, rolename);
-    }
-
     public String getPartition() {
         return partition;
     }
@@ -108,11 +104,15 @@ public class IOTRole implements IdKeyComposer, Serializable {
     @Override
     public Serializable generateIdKey() throws UnRetriableException {
 
-        if (null == getName()) {
+        if(null == getName() ){
             throw new UnRetriableException(" Can't save a role without a name");
         }
 
         return createCacheKey(getPartition(), getName());
 
+    }
+
+    public static String createCacheKey(String partition, String rolename){
+        return String.format("%s-%s",partition, rolename);
     }
 }

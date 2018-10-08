@@ -8,40 +8,26 @@ import org.apache.ignite.cache.query.annotations.QuerySqlField;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
-public final class WillMessage extends IOTMessage implements IdKeyComposer {
+public final class WillMessage extends IOTMessage implements IdKeyComposer{
 
     public static final String MESSAGE_TYPE = "WILL";
+
+    @QuerySqlField(index = true)
+    private String partition;
+
+    @QuerySqlField(index = true)
+    private String clientId;
+
     private final boolean retain;
     private final int qos;
     private final String topic;
-    @QuerySqlField(index = true)
-    private String partition;
-    @QuerySqlField(index = true)
-    private String clientId;
     private Serializable payload;
 
-
-    private WillMessage(boolean retain, int qos, String topic, String payload) {
-
-        setMessageType(MESSAGE_TYPE);
-        this.retain = retain;
-        this.qos = qos;
-        this.topic = topic;
-        setPayload(payload);
-    }
-
-    public static WillMessage from(boolean retain, int qos, String topic, String payload) {
-        return new WillMessage(retain, qos, topic, payload);
-    }
-
-    public static String getWillKey(String partition, String clientId) {
-
-        return String.format("%s-%s", partition, clientId);
-    }
 
     public boolean isRetain() {
         return retain;
     }
+
 
     public int getQos() {
         return qos;
@@ -75,13 +61,27 @@ public final class WillMessage extends IOTMessage implements IdKeyComposer {
         this.payload = payload;
     }
 
-    public PublishMessage toPublishMessage() {
+
+    private WillMessage(boolean retain, int qos, String topic, String payload) {
+
+        setMessageType(MESSAGE_TYPE);
+        this.retain = retain;
+        this.qos = qos;
+        this.topic = topic;
+        setPayload(payload);
+    }
+
+    public static WillMessage from(boolean retain, int qos, String topic, String payload) {
+        return new WillMessage(retain, qos, topic, payload);
+    }
+
+    public PublishMessage toPublishMessage(){
 
         byte[] willPayloadBytes = ((String) getPayload()).getBytes();
         ByteBuffer willByteBuffer = ByteBuffer.wrap(willPayloadBytes);
 
         long messageId = 1;
-        if (getQos() > 0) {
+        if(getQos() > 0 ){
             messageId = PublishMessage.ID_TO_FORCE_GENERATION_ON_SAVE;
         }
 
@@ -93,10 +93,15 @@ public final class WillMessage extends IOTMessage implements IdKeyComposer {
         );
     }
 
-    @Override
-    public Serializable generateIdKey() throws UnRetriableException {
+    public static String getWillKey(String partition, String clientId){
 
-        if (null == getClientId()) {
+        return String.format("%s-%s", partition, clientId);
+    }
+
+    @Override
+    public Serializable generateIdKey() throws UnRetriableException{
+
+        if(null == getClientId()){
             throw new UnRetriableException(" Client Id has to be non null");
         }
 

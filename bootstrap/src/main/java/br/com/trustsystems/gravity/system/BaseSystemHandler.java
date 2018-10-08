@@ -5,13 +5,12 @@ import org.apache.commons.configuration.Configuration;
 
 import java.io.Serializable;
 
-public interface BaseSystemHandler extends Comparable<BaseSystemHandler>, Serializable {
+public interface BaseSystemHandler extends Comparable<BaseSystemHandler>, Serializable{
 
     /**
      * <code>configure</code> allows the base system to configure itself by getting
      * all the settings it requires and storing them internally. The plugin is only expected to
      * pick the settings it has registered on the configuration file for its particular use.
-     *
      * @param configuration
      * @throws UnRetriableException
      */

@@ -10,7 +10,6 @@ import org.apache.ignite.cluster.ClusterGroup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-
 public abstract class DatastoresInitializer extends WorkersInitializer {
 
 
@@ -28,8 +27,6 @@ public abstract class DatastoresInitializer extends WorkersInitializer {
     private boolean datastoreEngineEnabled;
 
     private String datastoreClassName;
-    private List<Datastore> datastoreList = new ArrayList<>();
-    private Datastore activeDatastore;
 
     public boolean isDatastoreEngineEnabled() {
         return datastoreEngineEnabled;
@@ -39,6 +36,7 @@ public abstract class DatastoresInitializer extends WorkersInitializer {
         this.datastoreEngineEnabled = datastoreEngineEnabled;
     }
 
+
     public String getDatastoreClassName() {
         return datastoreClassName;
     }
@@ -47,9 +45,13 @@ public abstract class DatastoresInitializer extends WorkersInitializer {
         this.datastoreClassName = datastoreClassName;
     }
 
+    private List<Datastore> datastoreList = new ArrayList<>();
+
     public List<Datastore> getDatastoreList() {
         return datastoreList;
     }
+
+    private Datastore activeDatastore;
 
     public Datastore getActiveDatastore() {
         return activeDatastore;
@@ -74,7 +76,7 @@ public abstract class DatastoresInitializer extends WorkersInitializer {
             if (validateDatastoreCanBeLoaded(datastore)) {
 
                 datastore.setIgnite(getIgnite());
-
+                
                 ClusterGroup datastoreCluster = getIgnite().cluster().forAttribute("ROLE", getExecutorDatastoreName());
                 ExecutorService executorService = getIgnite().executorService(datastoreCluster);
                 datastore.setExecutorService(executorService);

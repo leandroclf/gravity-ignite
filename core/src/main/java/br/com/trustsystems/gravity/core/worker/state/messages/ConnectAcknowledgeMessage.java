@@ -15,6 +15,10 @@ public final class ConnectAcknowledgeMessage extends IOTMessage {
     private final MqttConnectReturnCode returnCode;
 
 
+    public static ConnectAcknowledgeMessage from(boolean dup, int qos, boolean retain, int keepAliveTime, MqttConnectReturnCode returnCode) {
+        return new ConnectAcknowledgeMessage(dup, qos, retain, keepAliveTime, returnCode);
+    }
+
     private ConnectAcknowledgeMessage(boolean dup, int qos, boolean retain, int keepAliveTime, MqttConnectReturnCode returnCode) {
 
         setMessageType(MESSAGE_TYPE);
@@ -23,11 +27,9 @@ public final class ConnectAcknowledgeMessage extends IOTMessage {
         this.retain = retain;
         this.keepAliveTime = keepAliveTime;
         this.returnCode = returnCode;
-    }
+        }
 
-    public static ConnectAcknowledgeMessage from(boolean dup, int qos, boolean retain, int keepAliveTime, MqttConnectReturnCode returnCode) {
-        return new ConnectAcknowledgeMessage(dup, qos, retain, keepAliveTime, returnCode);
-    }
+
 
     public boolean isDup() {
         return dup;
@@ -54,10 +56,10 @@ public final class ConnectAcknowledgeMessage extends IOTMessage {
     public String toString() {
 
         return getClass().getName() + '['
-                + "messageId=" + getMessageId() + ","
-                + "sessionId=" + getSessionId() + ","
-                + "keepAlive=" + getKeepAliveTime() + ","
-                + "returnCode=" + getReturnCode() + ","
-                + ']';
+                + "messageId=" + getMessageId() +","
+                + "sessionId=" + getSessionId() +","
+                + "keepAlive=" + getKeepAliveTime() +","
+                + "returnCode=" + getReturnCode() +","
+                +  ']';
     }
 }

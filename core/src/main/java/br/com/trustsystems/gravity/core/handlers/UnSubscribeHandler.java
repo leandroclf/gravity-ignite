@@ -6,6 +6,8 @@ import br.com.trustsystems.gravity.core.worker.state.messages.UnSubscribeAcknowl
 import br.com.trustsystems.gravity.core.worker.state.messages.UnSubscribeMessage;
 import br.com.trustsystems.gravity.core.worker.state.models.Client;
 import br.com.trustsystems.gravity.core.worker.state.models.Subscription;
+import br.com.trustsystems.gravity.exceptions.RetriableException;
+import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import rx.Observable;
 
 public class UnSubscribeHandler extends RequestHandler<UnSubscribeMessage> {
@@ -15,7 +17,7 @@ public class UnSubscribeHandler extends RequestHandler<UnSubscribeMessage> {
     }
 
     @Override
-    public void handle() {
+    public void handle() throws RetriableException, UnRetriableException {
 
 
         /**

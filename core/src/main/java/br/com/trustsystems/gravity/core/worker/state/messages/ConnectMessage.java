@@ -14,10 +14,10 @@ public final class ConnectMessage extends IOTMessage {
     private final int protocalLevel;
     private final boolean cleanSession;
     private final boolean annonymousSession;
-    private final String sourceHost;
     private String userName;
     private String password;
     private int keepAliveTime;
+    private final String sourceHost;
     private boolean hasWill;
     private boolean retainWill;
     private int willQos;
@@ -25,6 +25,20 @@ public final class ConnectMessage extends IOTMessage {
     private String willMessage;
     private String clientId;
 
+
+
+
+
+
+    public static ConnectMessage from( boolean dup, int qos, boolean retain, String protocolName,
+                                       int protocalLevel, boolean cleanSession, boolean annonymousSession, String clientIdentifier,
+                                       String userName, String password, int keepAliveTime, String sourceHost
+
+    ) {
+
+        return new ConnectMessage(dup, qos, retain, protocolName, protocalLevel, cleanSession, annonymousSession,
+                clientIdentifier, userName, password, keepAliveTime, sourceHost);
+    }
 
     private ConnectMessage(boolean dup, int qos, boolean retain, String protocolName, int protocalLevel,
                            boolean cleanSession, boolean annonymousSession, String clientIdentifier, String userName, String password,
@@ -44,15 +58,7 @@ public final class ConnectMessage extends IOTMessage {
         this.annonymousSession = annonymousSession;
     }
 
-    public static ConnectMessage from(boolean dup, int qos, boolean retain, String protocolName,
-                                      int protocalLevel, boolean cleanSession, boolean annonymousSession, String clientIdentifier,
-                                      String userName, String password, int keepAliveTime, String sourceHost
 
-    ) {
-
-        return new ConnectMessage(dup, qos, retain, protocolName, protocalLevel, cleanSession, annonymousSession,
-                clientIdentifier, userName, password, keepAliveTime, sourceHost);
-    }
 
     public boolean isDup() {
         return dup;
@@ -86,12 +92,12 @@ public final class ConnectMessage extends IOTMessage {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public String getPassword() {
         return password;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public void setPassword(String password) {
@@ -162,10 +168,10 @@ public final class ConnectMessage extends IOTMessage {
     @Override
     public String toString() {
         return getClass().getName() + '['
-                + "messageId=" + getMessageId() + ","
-                + "username=" + getUserName() + ","
-                + "clientId=" + getClientId() + ","
-                + "isCleanSession=" + isCleanSession() + ","
-                + ']';
+                + "messageId=" + getMessageId() +","
+                + "username=" + getUserName() +","
+                + "clientId=" + getClientId() +","
+                + "isCleanSession=" + isCleanSession() +","
+                +  ']';
     }
 }

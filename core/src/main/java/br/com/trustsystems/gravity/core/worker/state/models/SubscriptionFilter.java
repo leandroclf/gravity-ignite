@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class SubscriptionFilter implements Serializable, IdKeyComposer {
 
-    @QuerySqlField(orderedGroups = {
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_parentid_name_idx", order = 0)
     })
     private String partition;
@@ -16,12 +16,12 @@ public class SubscriptionFilter implements Serializable, IdKeyComposer {
     @QuerySqlField(index = true)
     private long id;
 
-    @QuerySqlField(orderedGroups = {
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_parentid_name_idx", order = 2)
     })
     private long parentId;
 
-    @QuerySqlField(orderedGroups = {
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_parentid_name_idx", order = 3)
     })
     private String name;
@@ -72,7 +72,7 @@ public class SubscriptionFilter implements Serializable, IdKeyComposer {
     @Override
     public Serializable generateIdKey() throws UnRetriableException {
 
-        if (0 == getId()) {
+        if(0 == getId()){
             throw new UnRetriableException(" id has to be set before you use the subscription filter");
         }
 

@@ -25,10 +25,12 @@ public class IOTSecurityManager extends SessionsSecurityManager {
 
     protected SubjectFactory subjectFactory;
 
-    public IOTSecurityManager() {
+    public IOTSecurityManager(){
         super();
         this.subjectFactory = new DefaultSubjectFactory();
     }
+
+
 
 
     /**
@@ -116,15 +118,15 @@ public class IOTSecurityManager extends SessionsSecurityManager {
             }
         }
 
-        try {
-            stopSession(subject);
-        } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                String msg = "Unable to cleanly stop Session for Subject [" + subject.getPrincipal() + "] " +
-                        "Ignoring (logging out).";
-                log.debug(msg, e);
+            try {
+                stopSession(subject);
+            } catch (Exception e) {
+                if (log.isDebugEnabled()) {
+                    String msg = "Unable to cleanly stop Session for Subject [" + subject.getPrincipal() + "] " +
+                            "Ignoring (logging out).";
+                    log.debug(msg, e);
+                }
             }
-        }
 
 
     }
@@ -232,7 +234,7 @@ public class IOTSecurityManager extends SessionsSecurityManager {
                 context.setSession(session);
 
                 PrincipalCollection principles = (PrincipalCollection) session.getAttribute(SESSION_PRINCIPLES_KEY);
-                if (null != principles) {
+                if(null != principles){
                     context.setPrincipals(principles);
                 }
 
@@ -244,7 +246,7 @@ public class IOTSecurityManager extends SessionsSecurityManager {
         return context;
     }
 
-    protected Session resolveContextSession(SubjectContext context) throws InvalidSessionException {
+    protected Session resolveContextSession( SubjectContext context) throws InvalidSessionException {
 
         Serializable sessionId = context.getSessionId();
 
@@ -258,10 +260,13 @@ public class IOTSecurityManager extends SessionsSecurityManager {
     }
 
 
+
+
+
     protected void stopSession(Subject subject) {
         Session s = subject.getSession(false);
         if (s != null) {
-            s.stop();
+           s.stop();
         }
 
 

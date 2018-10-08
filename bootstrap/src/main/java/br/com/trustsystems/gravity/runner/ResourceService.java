@@ -22,26 +22,26 @@ public abstract class ResourceService {
         this.configuration = configuration;
     }
 
-    public ServiceLoader<ConfigHandler> getConfigurationSetLoader() {
+    public ServiceLoader<ConfigHandler> getConfigurationSetLoader(){
 
         return ServiceLoader.load(ConfigHandler.class);
     }
 
-    public ServiceLoader<LogHandler> getLogSetLoader() {
+    public ServiceLoader<LogHandler> getLogSetLoader(){
 
         return ServiceLoader.load(LogHandler.class);
     }
 
-    public List<BaseSystemHandler> getSystemBaseSetLoader() {
+   public List<BaseSystemHandler> getSystemBaseSetLoader(){
 
         List<BaseSystemHandler> listBaseSystemHandler = new ArrayList<>();
-        for (BaseSystemHandler baseSystemHandler : ServiceLoader.load(BaseSystemHandler.class))
+        for (BaseSystemHandler baseSystemHandler: ServiceLoader.load(BaseSystemHandler.class))
             listBaseSystemHandler.add(baseSystemHandler);
 
-        Collections.sort(listBaseSystemHandler);
+       Collections.sort(listBaseSystemHandler);
 
-        return listBaseSystemHandler;
-    }
+       return listBaseSystemHandler;
+   }
 
 
     public List<BaseSystemHandler> getReversedSystemBaseSetLoader() {
@@ -54,14 +54,14 @@ public abstract class ResourceService {
     }
 
 
-    public SystemInitializer getSystemInitializer() throws UnRetriableException {
+    public SystemInitializer getSystemInitializer() throws UnRetriableException{
 
         Iterator<SystemInitializer> systemInitializerIterator = ServiceLoader.load(SystemInitializer.class).iterator();
 
-        if (systemInitializerIterator.hasNext())
+        if(systemInitializerIterator.hasNext())
             return systemInitializerIterator.next();
         else
             throw new UnRetriableException("A plugin supplying the system initializer: br.com.trustsystems.gravity.system.SystemInitializer is missing");
     }
 
-}
+    }

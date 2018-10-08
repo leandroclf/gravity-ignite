@@ -23,7 +23,7 @@ public class IdPassToken implements AuthenticationToken {
     private char[] password;
 
 
-    public IdPassToken(String partition, String username, String clientId, char[] password) {
+    public IdPassToken(String partition, String username, String clientId, char[] password){
         this.idConstruct = new IdConstruct(partition, username, clientId);
         this.password = password;
     }

@@ -31,10 +31,10 @@ public abstract class Eventer extends Subscriber<IOTMessage> implements BaseSyst
     @Override
     public int compareTo(BaseSystemHandler baseSystemHandler) {
 
-        if (null == baseSystemHandler)
+        if(null == baseSystemHandler)
             throw new NullPointerException("You can't compare a null object.");
 
-        if (baseSystemHandler instanceof Eventer)
+        if(baseSystemHandler instanceof Eventer)
             return 0;
         else
             return 1;

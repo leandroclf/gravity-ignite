@@ -11,7 +11,6 @@ import br.com.trustsystems.gravity.exceptions.RetriableException;
 import br.com.trustsystems.gravity.exceptions.UnRetriableException;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import rx.Observable;
-
 public class PublishInHandler extends RequestHandler<PublishMessage> {
 
     public PublishInHandler(PublishMessage message) {
@@ -23,10 +22,11 @@ public class PublishInHandler extends RequestHandler<PublishMessage> {
      * A PUBLISH Control Packet is sent from a Client to a Server or from Server to a Client
      * to transport an Application Message.
      *
+     * @throws RetriableException
      * @throws UnRetriableException
      */
     @Override
-    public void handle() throws UnRetriableException {
+    public void handle() throws RetriableException, UnRetriableException {
 
         log.debug(" handle : client attempting to publish a message.");
 
@@ -50,7 +50,7 @@ public class PublishInHandler extends RequestHandler<PublishMessage> {
                 topic.contains(Constant.MULTI_LEVEL_WILDCARD) ||
                 topic.contains(Constant.SINGLE_LEVEL_WILDCARD) ||
                 topic.contains(Constant.SYS_PREFIX)
-        ) {
+                ) {
             log.info(" handle : Invalid topic " + getMessage().getTopic());
             throw new ShutdownException(" Invalid topic name");
         }

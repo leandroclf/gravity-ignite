@@ -15,7 +15,8 @@ public final class DisconnectMessage extends IOTMessage {
     }
 
 
-    public static DisconnectMessage from(boolean dirtyDisconnect) {
+
+    public static DisconnectMessage from( boolean dirtyDisconnect) {
         return new DisconnectMessage(dirtyDisconnect);
 
 

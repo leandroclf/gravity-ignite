@@ -26,15 +26,15 @@ public class IOTHttpTransformerImpl implements IOTMqttTransformer<FullHttpMessag
                 json.put("messageId", ackMsg.getMessageId());
                 json.put("qos", ackMsg.getQos());
                 json.put("message", "published");
-                break;
+            break;
             case ConnectAcknowledgeMessage.MESSAGE_TYPE:
                 ConnectAcknowledgeMessage conAck = (ConnectAcknowledgeMessage) internalMessage;
 
-                json.put("sessionId", conAck.getSessionId());
+                json.put("sessionId", conAck.getSessionId() );
                 json.put("authKey", conAck.getAuthKey());
-                json.put("message", conAck.getReturnCode().name());
+                json.put("message", conAck.getReturnCode().name() );
 
-                break;
+            break;
             case SubscribeAcknowledgeMessage.MESSAGE_TYPE:
                 SubscribeAcknowledgeMessage subAck = (SubscribeAcknowledgeMessage) internalMessage;
 
@@ -48,19 +48,19 @@ public class IOTHttpTransformerImpl implements IOTMqttTransformer<FullHttpMessag
             case UnSubscribeAcknowledgeMessage.MESSAGE_TYPE:
                 UnSubscribeAcknowledgeMessage unSubAck = (UnSubscribeAcknowledgeMessage) internalMessage;
 
-                json.put("message", "unsubscribed");
+                json.put("message", "unsubscribed" );
 
                 break;
             case DisconnectMessage.MESSAGE_TYPE:
 
                 DisconnectMessage discMsg = (DisconnectMessage) internalMessage;
 
-                json.put("sessionId", discMsg.getSessionId());
-                json.put("message", "disconnected");
+                json.put("sessionId", discMsg.getSessionId() );
+                json.put("message", "disconnected" );
 
                 break;
             default:
-                json.put("message", "UnExpected outcome");
+                json.put("message","UnExpected outcome");
                 break;
         }
 

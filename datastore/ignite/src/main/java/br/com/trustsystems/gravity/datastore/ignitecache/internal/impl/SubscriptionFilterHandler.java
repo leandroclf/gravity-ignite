@@ -55,29 +55,30 @@ public class SubscriptionFilterHandler extends AbstractHandler<SubscriptionFilte
                     for (Long parentId : parentIdList) {
 
 
-                        String query = "partition = ? AND parentId = ? AND name IN (?, ?, ?) ";
-                        Object[] params = new Object[]{partition, parentId, name, Constant.MULTI_LEVEL_WILDCARD, Constant.SINGLE_LEVEL_WILDCARD};
+                            String  query = "partition = ? AND parentId = ? AND name IN (?, ?, ?) ";
+                            Object[]  params = new Object[]{partition, parentId, name, Constant.MULTI_LEVEL_WILDCARD, Constant.SINGLE_LEVEL_WILDCARD};
 
-                        getByQuery(SubscriptionFilter.class, query, params)
-                                .toBlocking().forEach(subscriptionFilter -> {
+                            getByQuery(SubscriptionFilter.class, query, params)
+                                    .toBlocking().forEach(subscriptionFilter -> {
 
-                            if (pathIterator.hasNext()) {
+                                if (pathIterator.hasNext()) {
 
-                                if (Constant.MULTI_LEVEL_WILDCARD.equals(subscriptionFilter.getName())) {
-                                    observer.onNext(subscriptionFilter);
+                                    if (Constant.MULTI_LEVEL_WILDCARD.equals(subscriptionFilter.getName())) {
+                                        observer.onNext(subscriptionFilter);
+                                    } else {
+                                        collectingParentIdList.add(subscriptionFilter.getId());
+                                    }
+
+
                                 } else {
-                                    collectingParentIdList.add(subscriptionFilter.getId());
+                                    observer.onNext(subscriptionFilter);
                                 }
 
+                            });
 
-                            } else {
-                                observer.onNext(subscriptionFilter);
-                            }
-
-                        });
-
+                        }
                     }
-                }
+
 
 
                 observer.onCompleted();
@@ -88,6 +89,7 @@ public class SubscriptionFilterHandler extends AbstractHandler<SubscriptionFilte
             }
 
         });
+
 
 
     }
@@ -113,10 +115,10 @@ public class SubscriptionFilterHandler extends AbstractHandler<SubscriptionFilte
 
                     for (Long parentId : parentIdList) {
 
-                        if (Constant.MULTI_LEVEL_WILDCARD.equals(name)) {
+                      if( Constant.MULTI_LEVEL_WILDCARD.equals(name)) {
 
-                            getMultiLevelWildCard(observer, partition, parentId);
-                        } else if (Constant.SINGLE_LEVEL_WILDCARD.equals(name)) {
+                          getMultiLevelWildCard(observer, partition, parentId);
+                      }else if (Constant.SINGLE_LEVEL_WILDCARD.equals(name)) {
 
                             String query = "partition = ? AND parentId = ? ";
                             Object[] params = {partition, parentId};
@@ -132,22 +134,24 @@ public class SubscriptionFilterHandler extends AbstractHandler<SubscriptionFilte
 
                             });
 
-                        } else {
+                        }else{
 
 
-                            String query = "partition = ? AND parentId = ? AND name = ? ";
-                            Object[] params = new Object[]{partition, parentId, name};
 
-                            getByQuery(SubscriptionFilter.class, query, params)
-                                    .toBlocking().forEach(subscriptionFilter -> {
 
-                                if (pathIterator.hasNext()) {
-                                    collectingParentIdList.add(subscriptionFilter.getId());
-                                } else {
-                                    observer.onNext(subscriptionFilter);
-                                }
+                          String  query = "partition = ? AND parentId = ? AND name = ? ";
+                            Object[]  params = new Object[]{partition, parentId, name};
 
-                            });
+                                getByQuery(SubscriptionFilter.class, query, params)
+                                        .toBlocking().forEach(subscriptionFilter -> {
+
+                                    if (pathIterator.hasNext()) {
+                                        collectingParentIdList.add(subscriptionFilter.getId());
+                                    } else {
+                                        observer.onNext(subscriptionFilter);
+                                    }
+
+                                });
 
                         }
                     }

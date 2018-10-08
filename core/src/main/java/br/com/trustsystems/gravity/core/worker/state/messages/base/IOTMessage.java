@@ -12,7 +12,7 @@ public class IOTMessage implements Serializable {
     private String authKey;
     private Serializable connectionId;
 
-    @QuerySqlField(orderedGroups = {
+    @QuerySqlField(orderedGroups={
             @QuerySqlField.Group(name = "partition_clientid_msgid_inbound_idx", order = 4)
     })
     private long messageId;
@@ -23,7 +23,7 @@ public class IOTMessage implements Serializable {
 
     private Serializable sessionId;
 
-    public Serializable getConnectionId() {
+   public Serializable getConnectionId() {
         return connectionId;
     }
 

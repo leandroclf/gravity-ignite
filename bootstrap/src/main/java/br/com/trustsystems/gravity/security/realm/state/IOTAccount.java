@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyComposer, Serializable {
+public class IOTAccount implements Account,  SaltedAuthenticationInfo, IdKeyComposer, Serializable {
 
 
     /*--------------------------------------------
@@ -86,10 +86,6 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
         this.credentials = credentials;
     }
 
-    public static String createCacheKey(String partition, String username) {
-        return String.format("%s-%s", partition, username);
-    }
-
     public IOTAccountDatastore getIotAccountDatastore() {
         return iotAccountDatastore;
     }
@@ -136,6 +132,7 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
     public void setCredentialsExpired(boolean credentialsExpired) {
         this.credentialsExpired = credentialsExpired;
     }
+
 
     /**
      * Returns the salt used to salt the account's credentials or {@code null} if no salt was used.
@@ -186,6 +183,7 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
         this.credentials = credentials;
     }
 
+
     /**
      * Returns the names of all roles assigned to a corresponding Subject.
      *
@@ -194,16 +192,6 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
     @Override
     public Collection<String> getRoles() {
         return roles;
-    }
-
-    /**
-     * Sets the Account's assigned roles.  Simply calls <code>this.authzInfo.setRoles(roles)</code>.
-     *
-     * @param roles the Account's assigned roles.
-     * @see Account#getRoles()
-     */
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
     }
 
     /**
@@ -226,13 +214,11 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
 
         IdConstruct idConstruct = (IdConstruct) getPrincipals().getPrimaryPrincipal();
         HashSet<String> stringPermissions = new HashSet<>();
-        getRoles().forEach(role -> {
-            IOTRole iotRole = getIotAccountDatastore().getIOTRole(idConstruct.getPartition(), role);
-            iotRole.getPermissions().forEach(permission -> {
-                stringPermissions.add(permission.toString());
-            });
+         getRoles().forEach(role->{
+           IOTRole iotRole = getIotAccountDatastore().getIOTRole(idConstruct.getPartition(), role);
+             iotRole.getPermissions().forEach(permission -> {stringPermissions.add(permission.toString());});
 
-        });
+         });
         return stringPermissions;
     }
 
@@ -247,12 +233,23 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
     public Collection<Permission> getObjectPermissions() {
         IdConstruct idConstruct = (IdConstruct) getPrincipals().getPrimaryPrincipal();
         HashSet<Permission> permissions = new HashSet<>();
-        getRoles().forEach(role -> {
+        getRoles().forEach(role->{
             IOTRole iotRole = getIotAccountDatastore().getIOTRole(idConstruct.getPartition(), role);
             permissions.addAll(iotRole.getPermissions());
 
         });
         return permissions;
+    }
+
+
+    /**
+     * Sets the Account's assigned roles.  Simply calls <code>this.authzInfo.setRoles(roles)</code>.
+     *
+     * @param roles the Account's assigned roles.
+     * @see Account#getRoles()
+     */
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
 
     /**
@@ -281,6 +278,9 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
         this.roles.addAll(roles);
     }
 
+
+
+
     /**
      * If the {@link #getPrincipals() principals} are not null, returns <code>principals.hashCode()</code>, otherwise
      * returns 0 (zero).
@@ -297,7 +297,7 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
      *
      * @param o the object to test for equality.
      * @return <code>true</code> if the specified object is also a {@link SimpleAccount SimpleAccount} and its
-     * {@link #getPrincipals() principals} are equal to this object's <code>principals</code>, <code>false</code> otherwise.
+     *         {@link #getPrincipals() principals} are equal to this object's <code>principals</code>, <code>false</code> otherwise.
      */
     public boolean equals(Object o) {
         if (o == this) {
@@ -327,11 +327,16 @@ public class IOTAccount implements Account, SaltedAuthenticationInfo, IdKeyCompo
 
         IdConstruct idConstruct = (IdConstruct) getPrincipals().getPrimaryPrincipal();
 
-        if (null == idConstruct) {
+        if(null == idConstruct ){
             throw new UnRetriableException(" Can't save an account without an id construct");
         }
 
         return createCacheKey(idConstruct.getPartition(), idConstruct.getUsername());
 
+    }
+
+
+    public static String createCacheKey(String partition, String username){
+        return String.format("%s-%s",partition, username);
     }
 }

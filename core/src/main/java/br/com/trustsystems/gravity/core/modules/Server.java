@@ -20,7 +20,6 @@ public abstract class Server<T> extends IOTBaseHandler {
      * @return
      */
     public abstract boolean isPersistentConnection();
-
     /**
      * Implementation to return the protocal for this particular implementation
      * Mainly the supported protocals are mqtt and http
@@ -46,12 +45,13 @@ public abstract class Server<T> extends IOTBaseHandler {
      * @param connectionId
      * @param sessionId
      * @param message
+     *
      */
-    public final void pushToWorker(Serializable connectionId, Serializable sessionId, T message) {
+    public final void pushToWorker(Serializable connectionId, Serializable sessionId, T message){
 
         IOTMessage ioTMessage = toIOTMessage(message);
 
-        if (null == message) {
+        if(null == message){
             dirtyDisconnect(connectionId, sessionId);
             return;
         }
@@ -61,11 +61,11 @@ public abstract class Server<T> extends IOTBaseHandler {
     }
 
 
-    private void internalPushToWorker(Serializable connectionId, Serializable sessionId, IOTMessage ioTMessage) {
+    private void internalPushToWorker(Serializable connectionId, Serializable sessionId, IOTMessage ioTMessage){
 
         ioTMessage.setConnectionId(connectionId);
 
-        if (isPersistentConnection()) {
+        if(isPersistentConnection()) {
             //Client specific variables.
             ioTMessage.setSessionId(sessionId);
 
@@ -92,10 +92,10 @@ public abstract class Server<T> extends IOTBaseHandler {
     @Override
     public int compareTo(BaseSystemHandler baseSystemHandler) {
 
-        if (null == baseSystemHandler)
+        if(null == baseSystemHandler)
             throw new NullPointerException("You can't compare a null object.");
 
-        if (baseSystemHandler instanceof Server)
+        if(baseSystemHandler instanceof Server)
             return 0;
         else
             return -1;

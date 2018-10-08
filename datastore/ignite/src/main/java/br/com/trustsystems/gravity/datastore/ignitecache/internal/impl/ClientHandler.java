@@ -11,6 +11,7 @@ public class ClientHandler extends AbstractHandler<Client> {
     public static final String CONFIG_IGNITECACHE_CLIENT_CACHE_NAME_VALUE_DEFAULT = "gravity_client_cache";
 
 
+
     @Override
     public void configure(Configuration configuration) {
 

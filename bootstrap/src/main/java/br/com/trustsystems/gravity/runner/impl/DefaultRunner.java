@@ -64,7 +64,7 @@ public class DefaultRunner extends ResourceService implements Runner {
         configuration.addConfiguration(new SystemConfiguration());
 
         setConfiguration(configuration);
-
+        
         for (ConfigHandler configHandler : getConfigurationSetLoader()) {
 
             log.debug(" init : found the configuration handler {} ", configHandler);

@@ -60,6 +60,7 @@ public class Messenger {
                  */
 
 
+
                 Observable<SubscriptionFilter> subscriptionObservable
                         = getDatastore().getOrCreateSubscriptionFilter(
                         client.getPartition(),
@@ -77,7 +78,7 @@ public class Messenger {
                                 subscription.setPartition(client.getPartition());
                                 subscription.setClientId(client.getClientId());
                                 subscription.setTopicFilterKey(subscriptionFilter.getId());
-                                subscription.setQos(qos);
+                                subscription.setQos( qos );
                                 getDatastore().saveSubscription(subscription);
 
                                 observer.onNext(topicFilterQos);
@@ -87,7 +88,7 @@ public class Messenger {
                                 observer.onNext(topicFilterQos);
                             }
 
-                        }, throwable -> log.error(" subscribe : problems releasing stored messages", throwable));
+                        }, throwable -> log.error(" subscribe : problems releasing stored messages", throwable) );
             }
             observer.onCompleted();
 
@@ -105,7 +106,7 @@ public class Messenger {
 
     }
 
-    public void publish(String partition, PublishMessage publishMessage) {
+    public void publish(String partition, PublishMessage publishMessage) throws RetriableException {
 
         log.debug(" publish : new message {} to publish from {} in partition {}", publishMessage, publishMessage.getClientId(), partition);
 
@@ -116,7 +117,7 @@ public class Messenger {
                 subscriptionFilter -> {
 
                     Observable<Subscription> subscriptionObservable
-                            = getDatastore().getSubscriptions(partition, subscriptionFilter.getId(), publishMessage.getQos());
+                    = getDatastore().getSubscriptions(partition, subscriptionFilter.getId(), publishMessage.getQos() );
                     subscriptionObservable.distinct().subscribe(
                             subscription -> {
 
@@ -137,7 +138,7 @@ public class Messenger {
 
                                     }
 
-                                    if (client.isActive()) {
+                                    if(client.isActive()) {
                                         //Actually push out the message.
                                         //This message should be released to the connected client
                                         PublishOutHandler handler = new PublishOutHandler(clonePublishMessage, client.getProtocalData());
@@ -153,12 +154,13 @@ public class Messenger {
 
 
                             }, throwable -> log.error(" process : database problems", throwable));
-                }, throwable -> log.error(" publish : database problems", throwable));
+        }, throwable -> log.error(" publish : database problems", throwable) );
+
 
 
         //Store the retained message.
 
-        if (publishMessage.isRetain()) {
+        if(publishMessage.isRetain()) {
 
 
             /**
@@ -174,24 +176,27 @@ public class Messenger {
              */
 
 
-            //Create a new subscription filter just incase it does not already exist.
 
-            Observable<SubscriptionFilter> retainedSubscriptionFilterObservable = getDatastore()
-                    .getOrCreateSubscriptionFilter(partition, publishMessage.getTopic());
 
-            retainedSubscriptionFilterObservable.subscribe(subscriptionFilter -> {
+                //Create a new subscription filter just incase it does not already exist.
 
-                RetainedMessage newRetainedMessage = RetainedMessage.from(partition, subscriptionFilter.getId(), publishMessage);
+                Observable<SubscriptionFilter> retainedSubscriptionFilterObservable = getDatastore()
+                        .getOrCreateSubscriptionFilter(partition, publishMessage.getTopic());
 
-                if (((byte[]) publishMessage.getPayload()).length > 0) {
+                retainedSubscriptionFilterObservable.subscribe(subscriptionFilter -> {
 
-                    //Save the retain message.
+                    RetainedMessage newRetainedMessage = RetainedMessage.from(partition, subscriptionFilter.getId(), publishMessage);
+
+                    if(((byte[]) publishMessage.getPayload()).length > 0) {
+
+                        //Save the retain message.
                     getDatastore().saveRetainedMessage(newRetainedMessage);
 
-                } else {
-                    getDatastore().removeRetainedMessage(newRetainedMessage);
+                }else{
+                        getDatastore().removeRetainedMessage(newRetainedMessage);
                 }
-            });
+                });
+
 
 
         }

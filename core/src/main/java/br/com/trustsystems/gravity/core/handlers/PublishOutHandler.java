@@ -28,7 +28,7 @@ public class PublishOutHandler extends RequestHandler<PublishMessage> {
     }
 
     @Override
-    public void handle() {
+    public void handle() throws RetriableException, UnRetriableException {
 
         log.debug(" handle : outbound message {} being processed", getMessage());
 
@@ -52,7 +52,7 @@ public class PublishOutHandler extends RequestHandler<PublishMessage> {
     private void httpPushToUrl(String url, PublishMessage publishMessage) {
 
 
-        ByteBuffer payloadBuffer = ByteBuffer.wrap((byte[]) publishMessage.getPayload());
+       ByteBuffer payloadBuffer = ByteBuffer.wrap((byte[]) publishMessage.getPayload());
 
         String payload = UTF8.decode(payloadBuffer).toString();
 
